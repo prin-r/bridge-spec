@@ -32,7 +32,7 @@ At Band Protocol, we provide a way for other blockchains to access off-chain inf
 
 ## Dependency
 
-**Bridge** implementation only have one spacial depencency which **OBI**.
+**Bridge** implementation only have one spacial depencency which is **OBI**.
 
 **OBI** or Oracle Binary Encoding is the standard way to serialized and deserialize binary data in the BandChain ecosystem. see full spec [here](https://docs.bandchain.org/developer/technical-specifications/obi.html#specification)
 
@@ -81,15 +81,16 @@ This process can be divided into two unrelated sub-processes.
   [i] - slashing [j] - staking [k] - supply    [l] - upgrade
   ```
 
-- 2. **verify_oracle_data**: Verify a specific value that store under `oracle module`**_[g]_** is really existed.
+- 2. **verify_oracle_data**: Verify a specific value that store under `oracle module`**_[g]_** is really existed by hashing the corresponding node's from bottom to top.
+
   ```text
                             _______________[Oracle Module Root Hash]_______________
                           /                                                        \
-              _______[ɩ9]______                                                    []
-            /                  \
-          ...             __[ɩ6]__
-      /         \          /         \
-      [ɩ1]       [ɩ2]     [ɩ3]        [ɩ4]
+              _______[ɩ9]______                                                    [C(n)]
+            /                  \                                                 /        \
+        [C(n-1)]             __[ɩ6]__                                          ...        ...
+       /        \          /         \
+    ...         ...       [ɩ4]
       /   \      /   \    /    \      /    \
   [a]   [b]  [c]   [d] [e]   [f]  [g]    [h]
   ```
