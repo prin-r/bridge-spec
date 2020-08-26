@@ -15,7 +15,7 @@
   - secp256k1 public key recovery
 - [Dependency](#dependency)
   - OBI
-- [Lite Client Verification Process](#lite-client-verification-process)
+- [Lite Client Verification Overview](#lite-client-verification-overview)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -39,7 +39,7 @@ At Band Protocol, we provide a way for other blockchains to access off-chain inf
 - see full spec [here](https://docs.bandchain.org/developer/technical-specifications/obi.html#specification)
 - see example implementation [here](https://github.com/bandprotocol/bandchain/blob/master/obi/pyobi/pyobi/pyobi.py)
 
-## Lite Client Verification Process
+## Lite Client Verification Overview
 
 Once the other blockchain receives the oracle result, they proceed to verify that the result actually comes from BandChain. They do this by submitting a verification request to the **Bridge**. The aim of this process is to ensure that the data received is actually part of BandChain’s state and is signed by a sufficient number of BandChain’s block validators.
 
@@ -89,11 +89,17 @@ This process can be divided into two unrelated sub-processes.
   ```text
                             _______________[Oracle Module Root Hash]_______________
                           /                                                        \
-              _______[ɩ9]______                                                    [C(n)]
-            /                  \                                                 /        \
-        [C(n-1)]             __[ɩ6]__                                          ...        ...
-       /        \          /         \
-    ...         ...       [ɩ4]
-      /   \      /   \    /    \      /    \
-  [a]   [b]  [c]   [d] [e]   [f]  [g]    [h]
+              _______[H(n-1)]______                                               [C(n)]
+            /                      \                                            /        \
+        [C(n-1)]                    \                                         ...        ...
+       /        \                    .
+    ...         ...                   .
+                                       .
+                                        \
+                                         \
+                                _______[H(2)]______
+                              /                    \
+                           [H(1)]                 [C(1)]
+                         /        \             /        \
+                     [value]     [C(0)]       ...         ...
   ```
