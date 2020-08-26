@@ -87,11 +87,13 @@ This process can be divided into two unrelated sub-processes.
 - 2. **verify_oracle_data**: Verify a specific value that store under `oracle module`**_[g]_** is really existed by hashing the corresponding node's from bottom to top.
 
   ```text
-                            _______________[Oracle Module Root Hash]_______________
-                          /                                                        \
-              _______[H(n-1)]______                                               [C(n)]
-            /                      \                                            /        \
-        [C(n-1)]                    \                                         ...        ...
+    # H(n) is an oracle module root hash or [g] in the previous diagram.
+
+                            _______________[H(n)]_______________
+                          /                                      \
+              _______[H(n-1)]______                             [C(n)]
+            /                      \                          /        \
+        [C(n-1)]                    \                       ...        ...
        /        \                    .
     ...         ...                   .
                                        .
