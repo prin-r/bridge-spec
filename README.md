@@ -26,9 +26,9 @@ At Band Protocol, we provide a way for other blockchains to access off-chain inf
 ## Utility Functions
 
 - [sha256](https://en.wikipedia.org/wiki/SHA-2)
-  - see python reference implementation [here](utils/sha256.py)
+  - see python example implementation [here](utils/sha256.py)
 - [secp256k1 public key recovery](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm)
-  - see python reference implementation [here](utils/secp256k1.py)
+  - see python example implementation [here](utils/secp256k1.py)
 
 ## Dependency
 
