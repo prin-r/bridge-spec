@@ -34,7 +34,10 @@ At Band Protocol, we provide a way for other blockchains to access off-chain inf
 
 **Bridge** implementation only have one spacial depencency which is **OBI**.
 
-**OBI** or Oracle Binary Encoding is the standard way to serialized and deserialize binary data in the BandChain ecosystem. see full spec [here](https://docs.bandchain.org/developer/technical-specifications/obi.html#specification)
+**OBI** or Oracle Binary Encoding is the standard way to serialized and deserialize binary data in the BandChain ecosystem.
+
+- see full spec [here](https://docs.bandchain.org/developer/technical-specifications/obi.html#specification)
+- see example implementation [here](https://github.com/bandprotocol/bandchain/blob/master/obi/pyobi/pyobi/pyobi.py)
 
 ## Lite Client Verification Process
 
