@@ -17,15 +17,15 @@
 
 ## Introduction
 
-At Band Protocol, we provide a way for other blockchains to access off-chain information through our decentralized oracle. As part of that offering, we also provide a specification of lite client verification for anyone who requested data from our oracle to verify the validity of the result they received. We call the instance of lite client that is existed on other blockchains **`Bridge`**. The implementation of **`Bridge`** can be a smart contract (additional logic published by user) or a module (build in logic of a blockchain).
+At Band Protocol, we provide a way for other blockchains to access off-chain information through our decentralized oracle. As part of that offering, we also provide a specification of lite client verification for anyone who requested data from our oracle to verify the validity of the result they received. We call the instance of lite client that is existed on other blockchains **Bridge**. The implementation of **Bridge** can be a smart contract (additional logic published by user) or a module (build in logic of a blockchain).
 
 ### Lite Client Verification Process
 
-Once the other blockchain receives the oracle result, they proceed to verify that the result actually comes from BandChain. They do this by submitting a verification request to the **`Bridge`**. The aim of this process is to ensure that the data received is actually part of BandChain’s state and is signed by a sufficient number of BandChain’s block validators.
+Once the other blockchain receives the oracle result, they proceed to verify that the result actually comes from BandChain. They do this by submitting a verification request to the **Bridge**. The aim of this process is to ensure that the data received is actually part of BandChain’s state and is signed by a sufficient number of BandChain’s block validators.
 
 This process can be divided into two unrelated sub-processes.
 
-- 1. `relay_oracle_state`: Verify that an `oracle module root hash`**_[g]_** module really exist on BandChain at a specific block and then save that root hash into **`Bridge`**'s state. This process requires the signatures of several validators signed on the block hash in which everyone who signs must have a total voting power greater than or equal to two-thirds of the entire voting power. The block hash is made up of multiple values that come from the BandChain state, where `oracle module root hash`**_[g]_** is one of them.
+- 1. **relay_oracle_state**: Verify that an `oracle module root hash`**_[g]_** module really exist on BandChain at a specific block and then save that root hash into **Bridge**'s state. This process requires the signatures of several validators signed on the block hash in which everyone who signs must have a total voting power greater than or equal to two-thirds of the entire voting power. The block hash is made up of multiple values that come from the BandChain state, where `oracle module root hash`**_[g]_** is one of them.
 
   ```text
                                  __ [BlockHash] __
@@ -64,6 +64,6 @@ This process can be divided into two unrelated sub-processes.
   [i] - slashing [j] - staking [k] - supply    [l] - upgrade
   ```
 
-- 2. `verify_oracle_data`:
+- 2. **verify_oracle_data**:
 
 ## Introduction
