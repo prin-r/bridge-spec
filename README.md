@@ -24,6 +24,6 @@ Once the other blockchain receives the oracle result, they proceed to verify tha
 
 This process can be divided into two unrelated sub-processes.
 
-    1. `relay_oracle_state`: Verify that a specific block really exist on BandChain and then save root hash of the oracle module from BandChain into `Bridge`'s state
+- 1. `relay_oracle_state`: Verify that a specific block really exist on BandChain and then save root hash of the oracle module from BandChain into `Bridge`'s state
 
-    2. `verify_oracle_data`:
+- 2. `verify_oracle_data`:
