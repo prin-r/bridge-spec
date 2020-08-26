@@ -17,7 +17,7 @@
 
 ## Introduction
 
-At Band Protocol, we provide a way for other blockchains to access off-chain information through our decentralized oracle. As part of that offering, we also provide a specification of lite client verification for anyone who requested data from our oracle to verify the validity of the result they received. We call the instance of lite client that is existed on other blockchains `Bridge`. The implementation of `Bridge` can be a smart contract (additional logic published by user) or a module (build in logic of a blockchain).
+At Band Protocol, we provide a way for other blockchains to access off-chain information through our decentralized oracle. As part of that offering, we also provide a specification of lite client verification for anyone who requested data from our oracle to verify the validity of the result they received. We call the instance of lite client that is existed on other blockchains **_`Bridge`_**. The implementation of `Bridge` can be a smart contract (additional logic published by user) or a module (build in logic of a blockchain).
 
 ### Lite Client Verification Process
 
@@ -25,7 +25,7 @@ Once the other blockchain receives the oracle result, they proceed to verify tha
 
 This process can be divided into two unrelated sub-processes.
 
-- 1. `relay_oracle_state`: Verify that a root hash of the oracle(`[g]`) module really exist on BandChain at a specific block and then save that root hash into `Bridge`'s state. This process requires the signatures of several validators signed on the block hash in which everyone who signs must have a total voting power greater than or equal to two-thirds of the entire voting power. The block hash is made up of multiple values that come from the BandChain state, where oracle module root hash(`[g]`) is one of them.
+- 1. `relay_oracle_state`: Verify that a root hash of the oracle(**_[g]_**) module really exist on BandChain at a specific block and then save that root hash into `Bridge`'s state. This process requires the signatures of several validators signed on the block hash in which everyone who signs must have a total voting power greater than or equal to two-thirds of the entire voting power. The block hash is made up of multiple values that come from the BandChain state, where oracle module root hash(**_[g]_**) is one of them.
 
   ```text
                                  __ [BlockHash] __
