@@ -15,4 +15,4 @@
 
 ## Introduction
 
-At Band Protocol, we provide a way for other blockchains to access off-chain information through our decentralized oracle. As part of that offering, we also provide a specification of lite client verification for anyone who requested data from our oracle to verify the validity of the result they received. We call the instance of lite client that is existed on other blockchains `Bridge`.
+At Band Protocol, we provide a way for other blockchains to access off-chain information through our decentralized oracle. As part of that offering, we also provide a specification of lite client verification for anyone who requested data from our oracle to verify the validity of the result they received. We call the instance of lite client that is existed on other blockchains `Bridge`. The implementation of `Bridge` can be a smart contract (additional logic published by user) or module (build in logic of the blockchain).
