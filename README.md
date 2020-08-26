@@ -16,6 +16,13 @@
 - [Dependency](#dependency)
   - OBI
 - [Lite Client Verification Overview](#lite-client-verification-overview)
+- [Bridge's storages](#bridge's-storages)
+  - [total_validator_power](#total_validator_power)
+  - [validator_powers](#validator_powers)
+  - [oracle_state](#oracle_state)
+  - [requests_cache](#requests_cache)
+- [Bridge's functions](#bridge's-functions)
+  - [get_total_validator_power](#get_total_validator_power)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -108,3 +115,27 @@ This process can be divided into two unrelated sub-processes.
                          /        \             /        \
                      [value]     [C(0)]       ...         ...
   ```
+
+## Bridge's storages
+
+#### total_validator_power
+
+xxxxxxxxxxxxx
+
+#### validator_powers
+
+xxxxxxxxxxxxx
+
+#### oracle_state
+
+xxxxxxxxxxxxx
+
+#### requests_cache
+
+xxxxxxxxxxxxx
+
+## Bridge's functions
+
+#### get_total_validator_power
+
+xxxxxxxxxxxxx
