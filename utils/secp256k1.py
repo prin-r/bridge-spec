@@ -1,101 +1,133 @@
-# https://gist.github.com/prokls/41e82472bd4968720d1482f81235e0ac
-
-F32 = 0xFFFFFFFF
-
-_k = [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
-      0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
-      0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
-      0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
-      0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
-      0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
-      0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
-      0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
-      0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
-      0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
-      0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
-      0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
-      0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
-      0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-      0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
-      0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2]
-
-_h = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
-      0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19]
+# https://en.bitcoin.it/wiki/Secp256k1
+_p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
+_n = 115792089237316195423570985008687907852837564279074904382605163141518161494337
+_a = 0
+_b = 7
+_gx = int("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798", 16)
+_gy = int("483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8", 16)
+_g = (_gx, _gy)
 
 
-def _pad(msglen):
-    mdi = msglen & 0x3F
-    length = (msglen << 3).to_bytes(8, byteorder='big')
+# https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
+def inv_mod(a, n=_p):
+    lm, hm = 1, 0
+    low, high = a % n, n
+    while low > 1:
+        ratio = high // low
+        nm, new = hm - lm * ratio, high - low * ratio
+        lm, low, hm, high = nm, new, lm, low
+    return lm % n
 
-    if mdi < 56:
-        padlen = 55 - mdi
+
+# https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Point_addition
+def ecc_add(a, b):
+    l = ((b[1] - a[1]) * inv_mod(b[0] - a[0])) % _p
+    x = (l * l - a[0] - b[0]) % _p
+    y = (l * (a[0] - x) - a[1]) % _p
+    return (x, y)
+
+
+# https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Point_doubling
+def ecc_double(a):
+    l = ((3 * a[0] * a[0] + _a) * inv_mod((2 * a[1]))) % _p
+    x = (l * l - 2 * a[0]) % _p
+    y = (l * (a[0] - x) - a[1]) % _p
+    return (x, y)
+
+
+# https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication
+def ecc_mul(point, scalar):
+    if scalar == 0 or scalar >= _p:
+        raise ValueError("INVALID_SCALAR_OR_PRIVATEKEY")
+    scalar_bin = str(bin(scalar))[2:]
+    q = point
+    for i in range(1, len(scalar_bin)):
+        q = ecc_double(q)
+        if scalar_bin[i] == "1":
+            q = ecc_add(q, point)
+    return q
+
+
+# https://rosettacode.org/wiki/Cipolla%27s_algorithm#Python
+def to_base(n, b):
+    if n < 2:
+        return [n]
+    temp = n
+    ans = []
+    while temp != 0:
+        ans = [temp % b] + ans
+        temp //= b
+    return ans
+
+
+# https://rosettacode.org/wiki/Cipolla%27s_algorithm#Python
+def ecc_sqrt(n, p):
+    n %= p
+    if n == 0 or n == 1:
+        return (n, -n % p)
+    phi = p - 1
+    if pow(n, phi // 2, p) != 1:
+        return ()
+    if p % 4 == 3:
+        ans = pow(n, (p + 1) // 4, p)
+        return (ans, -ans % p)
+    aa = 0
+    for i in range(1, p):
+        temp = pow((i * i - n) % p, phi // 2, p)
+        if temp == phi:
+            aa = i
+            break
+    exponent = to_base((p + 1) // 2, 2)
+
+    def cipolla_mult(ab, cd, w, p):
+        a, b = ab
+        c, d = cd
+        return ((a * c + b * d * w) % p, (a * d + b * c) % p)
+
+    x1 = (aa, 1)
+    x2 = cipolla_mult(x1, x1, aa * aa - n, p)
+    for i in range(1, len(exponent)):
+        if exponent[i] == 0:
+            x2 = cipolla_mult(x2, x1, aa * aa - n, p)
+            x1 = cipolla_mult(x1, x1, aa * aa - n, p)
+        else:
+            x1 = cipolla_mult(x1, x2, aa * aa - n, p)
+            x2 = cipolla_mult(x2, x2, aa * aa - n, p)
+
+    return (x1[0], -x1[0] % p)
+
+
+# https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm
+def ecrecover(_e: bytes, _r: bytes, _s: bytes, v):
+    e = int.from_bytes(_e, "big")
+    r = int.from_bytes(_r, "big")
+    s = int.from_bytes(_s, "big")
+
+    x = r % _n
+    y1, y2 = ecc_sqrt(x * x * x + x * _a + _b, _p)
+    if v == 27:
+        y = y1 if y1 % 2 == 0 else y2
+    elif v == 28:
+        y = y1 if y1 % 2 == 1 else y2
     else:
-        padlen = 119 - mdi
+        raise ValueError(f"ECRECOVER_ERROR: v must be 27 or 28 but got {v}")
 
-    return b'\x80' + (b'\x00' * padlen) + length
+    R = (x, y % _n)
+    x_inv = inv_mod(x, _n)
+    gxh = ecc_mul(_g, -e % _n)
 
+    pub = ecc_mul(ecc_add(gxh, ecc_mul(R, s)), x_inv)
 
-def _rotr(x, y):
-    return ((x >> y) | (x << (32 - y))) & F32
-
-
-def _maj(x, y, z):
-    return (x & y) ^ (x & z) ^ (y & z)
+    return bytes.fromhex("%064x" % pub[0] + "%064x" % pub[1])
 
 
-def _ch(x, y, z):
-    return (x & y) ^ ((~x) & z)
-
-
-def _compress(c, hh):
-    k = _k[:]
-    w = [0] * 64
-    w[0:16] = tuple([int.from_bytes(c[i*4:i*4+4], byteorder='big')
-                     for i in range(16)])
-
-    for i in range(16, 64):
-        s0 = _rotr(w[i-15], 7) ^ _rotr(w[i-15], 18) ^ (w[i-15] >> 3)
-        s1 = _rotr(w[i-2], 17) ^ _rotr(w[i-2], 19) ^ (w[i-2] >> 10)
-        w[i] = (w[i-16] + s0 + w[i-7] + s1) & F32
-
-    a, b, c, d, e, f, g, h = hh
-
-    for i in range(64):
-        s0 = _rotr(a, 2) ^ _rotr(a, 13) ^ _rotr(a, 22)
-        t2 = s0 + _maj(a, b, c)
-        s1 = _rotr(e, 6) ^ _rotr(e, 11) ^ _rotr(e, 25)
-        t1 = h + s1 + _ch(e, f, g) + k[i] + w[i]
-
-        h = g
-        g = f
-        f = e
-        e = (d + t1) & F32
-        d = c
-        c = b
-        b = a
-        a = (t1 + t2) & F32
-
-    for i, (x, y) in enumerate(zip(hh, [a, b, c, d, e, f, g, h])):
-        hh[i] = (x + y) & F32
-
-    return hh
-
-
-def update(counter, cache, m, h):
-    if not m:
-        return counter, cache, h
-
-    counter += len(m)
-    m = cache + m
-
-    for i in range(0, len(m) // 64):
-        h = _compress(m[64 * i:64 * (i + 1)], h)
-    cache = m[-(len(m) % 64):]
-
-    return counter, cache, h
-
-
-def digest(_m):
-    counter, cache, h = update(0, b'', _m, _h[:])
-    counter, cache, h = update(counter, cache, _pad(counter), h)
-    return b''.join([(i).to_bytes(4, byteorder='big') for i in h[:8]])
+if __name__ == "__main__":
+    assert ecrecover(
+        bytes.fromhex(
+            "45298f64c176ea53805cec6a6bff4bdd3fccb40250d62dc8f954aab6ef9037cb"),
+        bytes.fromhex(
+            "10ce9c6360ed05342478a0ed2ec6d378adf5a1d437a2be3c8e89740b3cd3bff1"),
+        bytes.fromhex(
+            "aa4b0588903d649c20d4d924998cb8be13e1f4ffe7e11ad8f84f80a8b2771fc9"),
+        27
+    ).hex() == 'ba9231dbfdaa0c5c62c320402f9136ced720a585244c4daacfade4b15614c4dcd13fcc4241a5dbdb10865791e22a2c639ce5673ff6213c018f7a93808ab5b9b7'

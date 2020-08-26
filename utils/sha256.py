@@ -99,3 +99,7 @@ def digest(_m):
     counter, cache, h = update(0, b'', _m, _h[:])
     counter, cache, h = update(counter, cache, _pad(counter), h)
     return b''.join([(i).to_bytes(4, byteorder='big') for i in h[:8]])
+
+
+if __name__ == "__main__":
+    assert digest(b'').hex() == 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
