@@ -14,7 +14,7 @@
   - sha256
   - secp256k1 public key recovery
 - [Dependency](#dependency)
-  - [OBI](#obi)
+  - OBI
 - [Lite Client Verification Process](#lite-client-verification-process)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -34,9 +34,7 @@ At Band Protocol, we provide a way for other blockchains to access off-chain inf
 
 **Bridge** implementation only have one spacial depencency which **OBI**.
 
-### OBI
-
-Oracle Binary Encoding (**OBI**) is the standard way to serialized and deserialize binary data in the BandChain ecosystem. see full spec [here](https://docs.bandchain.org/developer/technical-specifications/obi.html#specification)
+**OBI** or Oracle Binary Encoding is the standard way to serialized and deserialize binary data in the BandChain ecosystem. see full spec [here](https://docs.bandchain.org/developer/technical-specifications/obi.html#specification)
 
 ## Lite Client Verification Process
 
