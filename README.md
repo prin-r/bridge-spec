@@ -19,8 +19,8 @@
 - [Bridge's storages](#bridge's-storages)
   - [total_validator_power](#total_validator_power)
   - [validator_powers](#validator_powers)
-  - [oracle_state](#oracle_state)
-  - [requests_cache](#requests_cache)
+  - [oracle_states](#oracle_states)
+  - [requests_caches](#requests_caches)
 - [Bridge's functions](#bridge's-functions)
   - [get_total_validator_power](#get_total_validator_power)
 
@@ -132,7 +132,7 @@ contract Bridge {
 #### validator_powers
 
 A storage mapping that has the ability to map an address to an integer.
-For blockchains without the address type, something equivalent such as bytes or integer can be used instead.
+For blockchains without the address type, something equivalent such as string, bytes or integer can be used instead.
 
 ```solidity
 // An example of creating validator_powers in Solidity.
@@ -141,13 +141,31 @@ contract Bridge {
 }
 ```
 
-#### oracle_state
+#### oracle_states
 
-xxxxxxxxxxxxx
+A storage mapping that has the ability to map a positive integer (block height of BandChain) to a bytes32 (`oracle module`**_[g]_** root hash).
+For blockchains without the bytes32 type, something equivalent such as string, bytes or integer can be used instead.
 
-#### requests_cache
+```solidity
+// An example of creating validator_powers in Solidity.
+contract Bridge {
+    // A mapping from BandChain's block height to BandChain's oracle module root hash.
+    mapping(uint256 => bytes32) public oracle_states;
+}
+```
 
-xxxxxxxxxxxxx
+#### requests_caches
+
+A storage mapping that has the ability to map a bytes32 (hash of request packet) to a struct response packet.
+For blockchains without the bytes32 type, something equivalent such as string, bytes or integer can be used instead.
+
+```solidity
+// An example of creating requests_caches in Solidity.
+contract Bridge {
+    // A mapping from hash of request packet to a struct response packet.
+    mapping(bytes32 => response_packet) public requests_caches;
+}
+```
 
 ## Bridge's functions
 
