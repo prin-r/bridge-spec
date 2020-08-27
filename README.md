@@ -16,6 +16,14 @@
 - [Dependency](#dependency)
   - OBI
 - [Lite Client Verification Overview](#lite-client-verification-overview)
+- [Structs](#structs)
+  - [validator_with_power](#validator_with_power)
+  - [request_packet](#request_packet)
+  - [response_packet](#response_packet)
+  - [iavl_merkle_path](#iavl_merkle_path)
+  - [multi_store_proof](#multi_store_proof)
+  - [block_header_merkle_parts](#block_header_merkle_parts)
+  - [tm_signature](#tm_signature)
 - [Bridge's storages](#bridge's-storages)
   - [total_validator_power](#total_validator_power)
   - [validator_powers](#validator_powers)
@@ -115,6 +123,88 @@ This process can be divided into two unrelated sub-processes.
                          /        \             /        \
                      [value]     [C(0)]       ...        ...
   ```
+
+## Structs
+
+#### validator_with_power
+
+| Name        | Type      |
+| ----------- | --------- |
+| `validator` | `address` |
+| `power`     | `uint256` |
+
+```solidity
+// An example of creating validator_with_power in Solidity.
+contract Bridge {
+    struct validator_with_power {
+        address validator;
+        uint256 power;
+    }
+}
+```
+
+#### request_packet
+
+| Name               | Type     |
+| ------------------ | -------- |
+| `client_id`        | `string` |
+| `oracle_script_id` | `u64`    |
+| `params`           | `bytes`  |
+| `ask_count`        | `u64`    |
+| `min_count`        | `u64`    |
+
+#### response_packet
+
+| Name             | Type     |
+| ---------------- | -------- |
+| `client_id`      | `string` |
+| `request_id`     | `u64`    |
+| `ans_count`      | `u64`    |
+| `request_time`   | `u64`    |
+| `resolve_time`   | `u64`    |
+| `resolve_status` | `u32`    |
+| `result`         | `bytes`  |
+
+#### iavl_merkle_path
+
+| Name               | Type                     |
+| ------------------ | ------------------------ |
+| `is_data_on_right` | `bool`                   |
+| `subtree_height`   | `u8`                     |
+| `subtree_size`     | `u64`                    |
+| `subtree_version`  | `u64`                    |
+| `sibling_hash`     | `bytes`, fixed size = 32 |
+
+#### multi_store_proof
+
+| Name                                     | Type                     |
+| ---------------------------------------- | ------------------------ |
+| `acc_to_gov_stores_merkle_hash`          | `bytes`, fixed size = 32 |
+| `main_and_mint_stores_merkle_hash`       | `bytes`, fixed size = 32 |
+| `oracle_iavl_state_hash`                 | `bytes`, fixed size = 32 |
+| `params_stores_merkle_hash`              | `bytes`, fixed size = 32 |
+| `slashing_to_upgrade_stores_merkle_hash` | `bytes`, fixed size = 32 |
+
+#### block_header_merkle_parts
+
+| Name                                     | Type                     |
+| ---------------------------------------- | ------------------------ |
+| `version_and_chain_id_hash`              | `bytes`, fixed size = 32 |
+| `time_hash`                              | `bytes`, fixed size = 32 |
+| `last_block_id_and_other`                | `bytes`, fixed size = 32 |
+| `next_validator_hash_and_consensus_hash` | `bytes`, fixed size = 32 |
+| `last_results_hash`                      | `bytes`, fixed size = 32 |
+| `evidence_and_proposer_hash`             | `bytes`, fixed size = 32 |
+
+#### tm_signature
+
+| Name                 | Type                     |
+| -------------------- | ------------------------ |
+| `r`                  | `bytes`, fixed size = 32 |
+| `s`                  | `bytes`, fixed size = 32 |
+| `v`                  | `u8`                     |
+| `signed_data_prefix` | `bytes`                  |
+| `signed_data_suffix` | `bytes`                  |
 
 ## Bridge's storages
 
