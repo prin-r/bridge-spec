@@ -120,7 +120,7 @@ This process can be divided into two unrelated sub-processes.
 
 #### total_validator_power
 
-A storage variable that has the ability to hold one positive integer.
+A storage variable that has the ability to hold a positive integer.
 
 ```solidity
 // An example of creating total_validator_power in Solidity.
