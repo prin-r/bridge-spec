@@ -131,7 +131,15 @@ contract Bridge {
 
 #### validator_powers
 
-xxxxxxxxxxxxx
+A storage mapping that has the ability to map an address to an integer.
+For blockchains without the address type, something equivalent such as bytes or integer can be used instead.
+
+```solidity
+// An example of creating validator_powers in Solidity.
+contract Bridge {
+    mapping(address => uint256) public validator_powers;
+}
+```
 
 #### oracle_state
 
