@@ -128,24 +128,14 @@ This process can be divided into two unrelated sub-processes.
 
 #### validator_with_power
 
-| Name        | Type      |
+| Field Name  | Type      |
 | ----------- | --------- |
 | `validator` | `address` |
 | `power`     | `uint256` |
 
-```solidity
-// An example of creating validator_with_power in Solidity.
-contract Bridge {
-    struct validator_with_power {
-        address validator;
-        uint256 power;
-    }
-}
-```
-
 #### request_packet
 
-| Name               | Type     |
+| Field Name         | Type     |
 | ------------------ | -------- |
 | `client_id`        | `string` |
 | `oracle_script_id` | `u64`    |
@@ -155,7 +145,7 @@ contract Bridge {
 
 #### response_packet
 
-| Name             | Type     |
+| Field Name       | Type     |
 | ---------------- | -------- |
 | `client_id`      | `string` |
 | `request_id`     | `u64`    |
@@ -167,7 +157,7 @@ contract Bridge {
 
 #### iavl_merkle_path
 
-| Name               | Type                     |
+| Field Name         | Type                     |
 | ------------------ | ------------------------ |
 | `is_data_on_right` | `bool`                   |
 | `subtree_height`   | `u8`                     |
@@ -177,7 +167,7 @@ contract Bridge {
 
 #### multi_store_proof
 
-| Name                                     | Type                     |
+| Field Name                               | Type                     |
 | ---------------------------------------- | ------------------------ |
 | `acc_to_gov_stores_merkle_hash`          | `bytes`, fixed size = 32 |
 | `main_and_mint_stores_merkle_hash`       | `bytes`, fixed size = 32 |
@@ -187,7 +177,7 @@ contract Bridge {
 
 #### block_header_merkle_parts
 
-| Name                                     | Type                     |
+| Field Name                               | Type                     |
 | ---------------------------------------- | ------------------------ |
 | `version_and_chain_id_hash`              | `bytes`, fixed size = 32 |
 | `time_hash`                              | `bytes`, fixed size = 32 |
@@ -198,7 +188,7 @@ contract Bridge {
 
 #### tm_signature
 
-| Name                 | Type                     |
+| Field Name           | Type                     |
 | -------------------- | ------------------------ |
 | `r`                  | `bytes`, fixed size = 32 |
 | `s`                  | `bytes`, fixed size = 32 |
