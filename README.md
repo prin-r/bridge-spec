@@ -124,7 +124,7 @@ A storage variable that has the ability to hold one positive integer.
 
 ```solidity
 // An example of creating this total_validator_power in Solidity.
-contract A {
+contract Bridge {
     uint256 public total_validator_power;
 }
 ```
