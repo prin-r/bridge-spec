@@ -105,7 +105,7 @@ This process can be divided into two unrelated sub-processes.
             /                      \                          /        \
         [C(n-1)]                    \                       ...        ...
        /        \                    .
-    ...         ...                   .
+     ...        ...                   .
                                        .
                                         \
                                          \
@@ -113,14 +113,20 @@ This process can be divided into two unrelated sub-processes.
                               /                    \
                            [H(1)]                 [C(1)]
                          /        \             /        \
-                     [value]     [C(0)]       ...         ...
+                     [value]     [C(0)]       ...        ...
   ```
 
 ## Bridge's storages
 
 #### total_validator_power
 
-xxxxxxxxxxxxx
+A storage variable that has the ability to hold one positive integer.
+
+```solidity
+contract A {
+    uint256 public total_validator_power;
+}
+```
 
 #### validator_powers
 
