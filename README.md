@@ -137,25 +137,29 @@ A structure that encapsulates the address and the amount of voting power on Band
 
 #### request_packet
 
+A structure that encapsulates the information about the request.
+
 | Field Name         | Type     | Description                                                                                                                                                     |
 | ------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `client_id`        | `string` | a string that refer to the requester, for example "from_scan", ...                                                                                              |
 | `oracle_script_id` | `u64`    | an integer that refer to a specific oracle script on BandChain                                                                                                  |
 | `params`           | `bytes`  | an obi encode of the request's parameters, for example "000000034254430000000a" (obi encode of ["BTC", 10])                                                     |
-| `ask_count`        | `u64`    | The minimum number of validators necessary for the request to proceed to the execution phase. Therefore the minCount must be less than or equal to the askCount |
-| `min_count`        | `u64`    | The number of validators that are requested to respond to this request                                                                                          |
+| `ask_count`        | `u64`    | the minimum number of validators necessary for the request to proceed to the execution phase. Therefore the minCount must be less than or equal to the askCount |
+| `min_count`        | `u64`    | the number of validators that are requested to respond to this request                                                                                          |
 
 #### response_packet
 
-| Field Name       | Type     | Description |
-| ---------------- | -------- | ----------- |
-| `client_id`      | `string` |             |
-| `request_id`     | `u64`    |             |
-| `ans_count`      | `u64`    |             |
-| `request_time`   | `u64`    |             |
-| `resolve_time`   | `u64`    |             |
-| `resolve_status` | `u32`    |             |
-| `result`         | `bytes`  |             |
+A structure that encapsulates the information about the response.
+
+| Field Name       | Type     | Description                                                                                         |
+| ---------------- | -------- | --------------------------------------------------------------------------------------------------- |
+| `client_id`      | `string` | a string that refer to the requester, for example "from_scan", ...                                  |
+| `request_id`     | `u64`    | an integer that refer to a specific request on BandChain                                            |
+| `ans_count`      | `u64`    | a number of answers that was answered by validators                                                 |
+| `request_time`   | `u64`    | unix time at which the request was created on BandChain                                             |
+| `resolve_time`   | `u64`    | unix time at which the request got a number of reports/answers greater than or equal to `min_count` |
+| `resolve_status` | `u32`    | status of the request (0=Open, 1=Success, 2=Failure, 3=Expired)                                     |
+| `result`         | `bytes`  | an obi encode of the request's result, for example "0000aaaa" (obi encode of [ 43690 ])             |
 
 #### iavl_merkle_path
 
