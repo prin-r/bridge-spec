@@ -175,17 +175,19 @@ A structure of merkle proof that shows how the data leaf is part of the `oracle 
 
 #### multi_store_proof
 
-A structure that encapsulates sibling module hashes of the `oracle module`**_[g]_** which are `params module`**_[h]_**, `main,mint modules`**_[ρ3]_**, `acc,distr,evidence,gov modules`**_[ρ5]_**, `slashing,staking,supply,upgrade modules`**_[ρ10]_**.
+A structure that encapsulates sibling module hashes of the `app_hash`**_[A]_** which are `params module`**_[h]_**, `main,mint modules`**_[ρ3]_**, `acc,distr,evidence,gov modules`**_[ρ5]_**, `slashing,staking,supply,upgrade modules`**_[ρ10]_**.
 
-| Field Name                               | Type                     | Description |
-| ---------------------------------------- | ------------------------ | ----------- |
-| `acc_to_gov_stores_merkle_hash`          | `bytes`, fixed size = 32 |             |
-| `main_and_mint_stores_merkle_hash`       | `bytes`, fixed size = 32 |             |
-| `oracle_iavl_state_hash`                 | `bytes`, fixed size = 32 |             |
-| `params_stores_merkle_hash`              | `bytes`, fixed size = 32 |             |
-| `slashing_to_upgrade_stores_merkle_hash` | `bytes`, fixed size = 32 |             |
+| Field Name                               | Type                     | Description                                                        |
+| ---------------------------------------- | ------------------------ | ------------------------------------------------------------------ |
+| `acc_to_gov_stores_merkle_hash`          | `bytes`, fixed size = 32 | root hash of acc,distr,evidence,gov modules (**_[ρ5]_**)           |
+| `main_and_mint_stores_merkle_hash`       | `bytes`, fixed size = 32 | root hash of main and mint modules (**_[ρ3]_**)                    |
+| `oracle_iavl_state_hash`                 | `bytes`, fixed size = 32 | root hash of oracle module (**_[g]_**)                             |
+| `params_stores_merkle_hash`              | `bytes`, fixed size = 32 | root hash of params module (**_[h]_**)                             |
+| `slashing_to_upgrade_stores_merkle_hash` | `bytes`, fixed size = 32 | root hash of slashing,staking,supply,upgrade modules (**_[ρ10]_**) |
 
 #### block_header_merkle_parts
+
+A structure that encapsulates sibling component hashes of the `oracle module`**_[g]_** which are `params module`**_[h]_**, `main,mint modules`**_[ρ3]_**, `acc,distr,evidence,gov modules`**_[ρ5]_**, `slashing,staking,supply,upgrade modules`**_[ρ10]_**.
 
 | Field Name                               | Type                     | Description |
 | ---------------------------------------- | ------------------------ | ----------- |
