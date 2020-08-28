@@ -141,7 +141,7 @@ A structure that encapsulates the address and the amount of voting power on Band
 | ------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `client_id`        | `string` | a string that refer to the requester, for example "from_scan", ...                                                                                              |
 | `oracle_script_id` | `u64`    | an integer that refer to a specific oracle script on BandChain                                                                                                  |
-| `params`           | `bytes`  | an obi encode of the request's parameters, for example "00000003425443" (obi encode of {"symbol":"BTC"})                                                        |
+| `params`           | `bytes`  | an obi encode of the request's parameters, for example "000000034254430000000a" (obi encode of ["BTC", 10])                                                     |
 | `ask_count`        | `u64`    | The minimum number of validators necessary for the request to proceed to the execution phase. Therefore the minCount must be less than or equal to the askCount |
 | `min_count`        | `u64`    | The number of validators that are requested to respond to this request                                                                                          |
 
