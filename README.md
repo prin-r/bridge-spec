@@ -163,6 +163,8 @@ A structure that encapsulates the information about the response.
 
 #### iavl_merkle_path
 
+A structure of merkle proof that shows how the data leaf is part of the `oracle module`**_[g]_** tree. The proof’s content is the list of “iavl_merkle_path” from the leaf to the root of the tree.
+
 | Field Name         | Type                     | Description                                                    |
 | ------------------ | ------------------------ | -------------------------------------------------------------- |
 | `is_data_on_right` | `bool`                   | whether the data is on the right subtree of this internal node |
