@@ -128,73 +128,75 @@ This process can be divided into two unrelated sub-processes.
 
 #### validator_with_power
 
-| Field Name  | Type      |
-| ----------- | --------- |
-| `validator` | `address` |
-| `power`     | `uint256` |
+A structure that encapsulates the address and the amount of voting power on BandChain of a single validator.
+
+| Field Name  | Type      | Description                           |
+| ----------- | --------- | ------------------------------------- |
+| `validator` | `address` | validator's address                   |
+| `power`     | `uint256` | validator's voting power on BandChain |
 
 #### request_packet
 
-| Field Name         | Type     |
-| ------------------ | -------- |
-| `client_id`        | `string` |
-| `oracle_script_id` | `u64`    |
-| `params`           | `bytes`  |
-| `ask_count`        | `u64`    |
-| `min_count`        | `u64`    |
+| Field Name         | Type     | Description                                                                                                                                                     |
+| ------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `client_id`        | `string` | a string that refer to the requester, for example "from_scan", ...                                                                                              |
+| `oracle_script_id` | `u64`    | an integer that refer to a specific oracle script on BandChain                                                                                                  |
+| `params`           | `bytes`  | an obi encode of the request's parameters, for example "00000003425443" (obi encode of {"symbol":"BTC"})                                                        |
+| `ask_count`        | `u64`    | The minimum number of validators necessary for the request to proceed to the execution phase. Therefore the minCount must be less than or equal to the askCount |
+| `min_count`        | `u64`    | The number of validators that are requested to respond to this request                                                                                          |
 
 #### response_packet
 
-| Field Name       | Type     |
-| ---------------- | -------- |
-| `client_id`      | `string` |
-| `request_id`     | `u64`    |
-| `ans_count`      | `u64`    |
-| `request_time`   | `u64`    |
-| `resolve_time`   | `u64`    |
-| `resolve_status` | `u32`    |
-| `result`         | `bytes`  |
+| Field Name       | Type     | Description |
+| ---------------- | -------- | ----------- |
+| `client_id`      | `string` |             |
+| `request_id`     | `u64`    |             |
+| `ans_count`      | `u64`    |             |
+| `request_time`   | `u64`    |             |
+| `resolve_time`   | `u64`    |             |
+| `resolve_status` | `u32`    |             |
+| `result`         | `bytes`  |             |
 
 #### iavl_merkle_path
 
-| Field Name         | Type                     |
-| ------------------ | ------------------------ |
-| `is_data_on_right` | `bool`                   |
-| `subtree_height`   | `u8`                     |
-| `subtree_size`     | `u64`                    |
-| `subtree_version`  | `u64`                    |
-| `sibling_hash`     | `bytes`, fixed size = 32 |
+| Field Name         | Type                     | Description |
+| ------------------ | ------------------------ | ----------- |
+| `is_data_on_right` | `bool`                   |             |
+| `subtree_height`   | `u8`                     |             |
+| `subtree_size`     | `u64`                    |             |
+| `subtree_version`  | `u64`                    |             |
+| `sibling_hash`     | `bytes`, fixed size = 32 |             |
 
 #### multi_store_proof
 
-| Field Name                               | Type                     |
-| ---------------------------------------- | ------------------------ |
-| `acc_to_gov_stores_merkle_hash`          | `bytes`, fixed size = 32 |
-| `main_and_mint_stores_merkle_hash`       | `bytes`, fixed size = 32 |
-| `oracle_iavl_state_hash`                 | `bytes`, fixed size = 32 |
-| `params_stores_merkle_hash`              | `bytes`, fixed size = 32 |
-| `slashing_to_upgrade_stores_merkle_hash` | `bytes`, fixed size = 32 |
+| Field Name                               | Type                     | Description |
+| ---------------------------------------- | ------------------------ | ----------- |
+| `acc_to_gov_stores_merkle_hash`          | `bytes`, fixed size = 32 |             |
+| `main_and_mint_stores_merkle_hash`       | `bytes`, fixed size = 32 |             |
+| `oracle_iavl_state_hash`                 | `bytes`, fixed size = 32 |             |
+| `params_stores_merkle_hash`              | `bytes`, fixed size = 32 |             |
+| `slashing_to_upgrade_stores_merkle_hash` | `bytes`, fixed size = 32 |             |
 
 #### block_header_merkle_parts
 
-| Field Name                               | Type                     |
-| ---------------------------------------- | ------------------------ |
-| `version_and_chain_id_hash`              | `bytes`, fixed size = 32 |
-| `time_hash`                              | `bytes`, fixed size = 32 |
-| `last_block_id_and_other`                | `bytes`, fixed size = 32 |
-| `next_validator_hash_and_consensus_hash` | `bytes`, fixed size = 32 |
-| `last_results_hash`                      | `bytes`, fixed size = 32 |
-| `evidence_and_proposer_hash`             | `bytes`, fixed size = 32 |
+| Field Name                               | Type                     | Description |
+| ---------------------------------------- | ------------------------ | ----------- |
+| `version_and_chain_id_hash`              | `bytes`, fixed size = 32 |             |
+| `time_hash`                              | `bytes`, fixed size = 32 |             |
+| `last_block_id_and_other`                | `bytes`, fixed size = 32 |             |
+| `next_validator_hash_and_consensus_hash` | `bytes`, fixed size = 32 |             |
+| `last_results_hash`                      | `bytes`, fixed size = 32 |             |
+| `evidence_and_proposer_hash`             | `bytes`, fixed size = 32 |             |
 
 #### tm_signature
 
-| Field Name           | Type                     |
-| -------------------- | ------------------------ |
-| `r`                  | `bytes`, fixed size = 32 |
-| `s`                  | `bytes`, fixed size = 32 |
-| `v`                  | `u8`                     |
-| `signed_data_prefix` | `bytes`                  |
-| `signed_data_suffix` | `bytes`                  |
+| Field Name           | Type                     | Description |
+| -------------------- | ------------------------ | ----------- |
+| `r`                  | `bytes`, fixed size = 32 |             |
+| `s`                  | `bytes`, fixed size = 32 |             |
+| `v`                  | `u8`                     |             |
+| `signed_data_prefix` | `bytes`                  |             |
+| `signed_data_suffix` | `bytes`                  |             |
 
 ## Bridge's storages
 
