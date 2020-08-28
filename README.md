@@ -163,13 +163,13 @@ A structure that encapsulates the information about the response.
 
 #### iavl_merkle_path
 
-| Field Name         | Type                     | Description |
-| ------------------ | ------------------------ | ----------- |
-| `is_data_on_right` | `bool`                   |             |
-| `subtree_height`   | `u8`                     |             |
-| `subtree_size`     | `u64`                    |             |
-| `subtree_version`  | `u64`                    |             |
-| `sibling_hash`     | `bytes`, fixed size = 32 |             |
+| Field Name         | Type                     | Description                                                    |
+| ------------------ | ------------------------ | -------------------------------------------------------------- |
+| `is_data_on_right` | `bool`                   | whether the data is on the right subtree of this internal node |
+| `subtree_height`   | `u8`                     | the height of this subtree                                     |
+| `subtree_size`     | `u64`                    | the size of this subtree                                       |
+| `subtree_version`  | `u64`                    | the latest block height that this subtree has been updated     |
+| `sibling_hash`     | `bytes`, fixed size = 32 | hash of the other child subtree                                |
 
 #### multi_store_proof
 
