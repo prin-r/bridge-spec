@@ -200,13 +200,17 @@ A structure that encapsulates ...
 
 #### tm_signature
 
+A structure that encapsulates Tendermint's precommit data and validator's signature for performing signer recovery for ECDSA secp256k1 signature. Tendermint's precommit data compose of block hash and some additional information prepended and appended to the block
+hash. The prepended part (prefix) and the appended part (suffix) are different for each signer
+(including signature size, machine clock, validator index, etc).
+
 | Field Name           | Type                     | Description                                                      |
 | -------------------- | ------------------------ | ---------------------------------------------------------------- |
 | `r`                  | `bytes`, fixed size = 32 | a part of signature                                              |
 | `s`                  | `bytes`, fixed size = 32 | a part of signature                                              |
 | `v`                  | `u8`                     | a value that helps reduce the calculation of public key recovery |
-| `signed_data_prefix` | `bytes`                  |                                                                  |
-| `signed_data_suffix` | `bytes`                  |                                                                  |
+| `signed_data_prefix` | `bytes`                  | The prepended part of Tendermint's precommit data                |
+| `signed_data_suffix` | `bytes`                  | The appended part of Tendermint's precommit data                 |
 
 ## Bridge's storages
 
