@@ -187,26 +187,26 @@ A structure that encapsulates sibling module hashes of the `app_hash`**_[A]_** w
 
 #### block_header_merkle_parts
 
-A structure that encapsulates sibling component hashes of the `oracle module`**_[g]_** which are `params module`**_[h]_**, `main,mint modules`**_[ρ3]_**, `acc,distr,evidence,gov modules`**_[ρ5]_**, `slashing,staking,supply,upgrade modules`**_[ρ10]_**.
+A structure that encapsulates ...
 
-| Field Name                               | Type                     | Description |
-| ---------------------------------------- | ------------------------ | ----------- |
-| `version_and_chain_id_hash`              | `bytes`, fixed size = 32 |             |
-| `time_hash`                              | `bytes`, fixed size = 32 |             |
-| `last_block_id_and_other`                | `bytes`, fixed size = 32 |             |
-| `next_validator_hash_and_consensus_hash` | `bytes`, fixed size = 32 |             |
-| `last_results_hash`                      | `bytes`, fixed size = 32 |             |
-| `evidence_and_proposer_hash`             | `bytes`, fixed size = 32 |             |
+| Field Name                               | Type                     | Description                                               |
+| ---------------------------------------- | ------------------------ | --------------------------------------------------------- |
+| `version_and_chain_id_hash`              | `bytes`, fixed size = 32 | root hash of version and chain id components (**_[1α]_**) |
+| `time_hash`                              | `bytes`, fixed size = 32 | hash of time component (**_[3]_**)                        |
+| `last_block_id_and_other`                | `bytes`, fixed size = 32 | root hash of last_block_id and                            |
+| `next_validator_hash_and_consensus_hash` | `bytes`, fixed size = 32 | root hash of version and chain id components (**_[1ε]_**) |
+| `last_results_hash`                      | `bytes`, fixed size = 32 | hash of last results component (**_[B]_**)                |
+| `evidence_and_proposer_hash`             | `bytes`, fixed size = 32 | hash of evidence and proposer components (**_[2Δ]_**)     |
 
 #### tm_signature
 
-| Field Name           | Type                     | Description |
-| -------------------- | ------------------------ | ----------- |
-| `r`                  | `bytes`, fixed size = 32 |             |
-| `s`                  | `bytes`, fixed size = 32 |             |
-| `v`                  | `u8`                     |             |
-| `signed_data_prefix` | `bytes`                  |             |
-| `signed_data_suffix` | `bytes`                  |             |
+| Field Name           | Type                     | Description                                |
+| -------------------- | ------------------------ | ------------------------------------------ |
+| `r`                  | `bytes`, fixed size = 32 | a part of signature                        |
+| `s`                  | `bytes`, fixed size = 32 | a part of signature                        |
+| `v`                  | `u8`                     | a value that reduce public key calculation |
+| `signed_data_prefix` | `bytes`                  |                                            |
+| `signed_data_suffix` | `bytes`                  |                                            |
 
 ## Bridge's storages
 
