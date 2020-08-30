@@ -200,13 +200,13 @@ A structure that encapsulates ...
 
 #### tm_signature
 
-| Field Name           | Type                     | Description                                |
-| -------------------- | ------------------------ | ------------------------------------------ |
-| `r`                  | `bytes`, fixed size = 32 | a part of signature                        |
-| `s`                  | `bytes`, fixed size = 32 | a part of signature                        |
-| `v`                  | `u8`                     | a value that reduce public key calculation |
-| `signed_data_prefix` | `bytes`                  |                                            |
-| `signed_data_suffix` | `bytes`                  |                                            |
+| Field Name           | Type                     | Description                                                      |
+| -------------------- | ------------------------ | ---------------------------------------------------------------- |
+| `r`                  | `bytes`, fixed size = 32 | a part of signature                                              |
+| `s`                  | `bytes`, fixed size = 32 | a part of signature                                              |
+| `v`                  | `u8`                     | a value that helps reduce the calculation of public key recovery |
+| `signed_data_prefix` | `bytes`                  |                                                                  |
+| `signed_data_suffix` | `bytes`                  |                                                                  |
 
 ## Bridge's storages
 
