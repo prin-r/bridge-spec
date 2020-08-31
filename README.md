@@ -62,7 +62,7 @@ Once the other blockchain receives the oracle result, they proceed to verify tha
 
 This process can be divided into two unrelated sub-processes.
 
-- 1. **relay_oracle_state**: Verify that an `oracle module`**_[g]_** root hash module really exist on BandChain at a specific block and then save that root hash into **Bridge**'s state. This process requires the signatures of several validators signed on the block hash in which everyone who signs must have a total voting power greater than or equal to two-thirds of the entire voting power. The block hash is made up of multiple values that come from the BandChain state, where `oracle module`**_[g]_** root hash is one of them.
+- 1. **relay_oracle_state**: Verify that an `oracle module`<strong><em>[g]</em></strong> root hash module really exist on BandChain at a specific block and then save that root hash into **Bridge**'s state. This process requires the signatures of several validators signed on the block hash in which everyone who signs must have a total voting power greater than or equal to two-thirds of the entire voting power. The block hash is made up of multiple values that come from the BandChain state, where `oracle module`<strong><em>[g]</em></strong> root hash is one of them.
 
   ```text
                                  __ [BlockHash] __
@@ -101,10 +101,10 @@ This process can be divided into two unrelated sub-processes.
   [i] - slashing [j] - staking [k] - supply    [l] - upgrade
   ```
 
-- 2. **verify_oracle_data**: Verify a specific value that store under `oracle module`**_[g]_** is really existed by hashing the corresponding node's from bottom to top.
+- 2. **verify_oracle_data**: Verify a specific value that store under `oracle module`<strong><em>[g]</em></strong> is really existed by hashing the corresponding node's from bottom to top.
 
   - **n** is the height of IAVL merkle tree
-  - **H(n)** is an `oracle module`**_[g]_** root hash from the previous diagram.
+  - **H(n)** is an `oracle module`<strong><em>[g]</em></strong> root hash from the previous diagram.
   - **C(i)** is a corresponding node to H(i) where **i ∈ {0,1,2,...,n-1}** .
 
   ```text
@@ -164,7 +164,7 @@ A structure that encapsulates the information about the response.
 
 #### iavl_merkle_path
 
-A structure of merkle proof that shows how the data leaf is part of the `oracle module`**_[g]_** tree. The proof’s content is the list of “iavl_merkle_path” from the leaf to the root of the tree.
+A structure of merkle proof that shows how the data leaf is part of the `oracle module`<strong><em>[g]</em></strong> tree. The proof’s content is the list of “iavl_merkle_path” from the leaf to the root of the tree.
 
 | Field Name         | Type                     | Description                                                    |
 | ------------------ | ------------------------ | -------------------------------------------------------------- |
@@ -176,28 +176,28 @@ A structure of merkle proof that shows how the data leaf is part of the `oracle 
 
 #### multi_store_proof
 
-A structure that encapsulates sibling module hashes of the `app_hash`**_[A]_** which are `params module`**_[h]_**, `main,mint modules`**_[ρ3]_**, `acc,distr,evidence,gov modules`**_[ρ5]_**, `slashing,staking,supply,upgrade modules`**_[ρ10]_**.
+A structure that encapsulates sibling module hashes of the `app_hash`<strong><em>[A]</em></strong> which are `params module`<strong><em>[h]</em></strong>, `main,mint modules`<strong><em>[ρ3]</em></strong>, `acc,distr,evidence,gov modules`<strong><em>[ρ5]</em></strong>, `slashing,staking,supply,upgrade modules`<strong><em>[ρ10]</em></strong>.
 
-| Field Name                               | Type                     | Description                                                        |
-| ---------------------------------------- | ------------------------ | ------------------------------------------------------------------ |
-| `acc_to_gov_stores_merkle_hash`          | `bytes`, fixed size = 32 | root hash of acc,distr,evidence,gov modules (**_[ρ5]_**)           |
-| `main_and_mint_stores_merkle_hash`       | `bytes`, fixed size = 32 | root hash of main and mint modules (**_[ρ3]_**)                    |
-| `oracle_iavl_state_hash`                 | `bytes`, fixed size = 32 | root hash of oracle module (**_[g]_**)                             |
-| `params_stores_merkle_hash`              | `bytes`, fixed size = 32 | root hash of params module (**_[h]_**)                             |
-| `slashing_to_upgrade_stores_merkle_hash` | `bytes`, fixed size = 32 | root hash of slashing,staking,supply,upgrade modules (**_[ρ10]_**) |
+| Field Name                               | Type                     | Description                                                                            |
+| ---------------------------------------- | ------------------------ | -------------------------------------------------------------------------------------- |
+| `acc_to_gov_stores_merkle_hash`          | `bytes`, fixed size = 32 | root hash of acc,distr,evidence,gov modules (<strong><em>[ρ5]</em></strong>)           |
+| `main_and_mint_stores_merkle_hash`       | `bytes`, fixed size = 32 | root hash of main and mint modules (<strong><em>[ρ3]</em></strong>)                    |
+| `oracle_iavl_state_hash`                 | `bytes`, fixed size = 32 | root hash of oracle module (<strong><em>[g]</em></strong>)                             |
+| `params_stores_merkle_hash`              | `bytes`, fixed size = 32 | root hash of params module (<strong><em>[h]</em></strong>)                             |
+| `slashing_to_upgrade_stores_merkle_hash` | `bytes`, fixed size = 32 | root hash of slashing,staking,supply,upgrade modules (<strong><em>[ρ10]</em></strong>) |
 
 #### block_header_merkle_parts
 
-A structure that encapsulates the components of a block header that correspond to height <strong>[2]</strong> and app hash **_[A]_**.
+A structure that encapsulates the components of a block header that correspond to height <strong><em>[2]</em></strong> and app hash <strong><em>[A]</em></strong>.
 
-| Field Name                               | Type                     | Description                                                                           |
-| ---------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------- |
-| `version_and_chain_id_hash`              | `bytes`, fixed size = 32 | root hash of version and chain id components (**_[1α]_**)                             |
-| `time_hash`                              | `bytes`, fixed size = 32 | hash of time component (**_[3]_**)                                                    |
-| `last_block_id_and_other`                | `bytes`, fixed size = 32 | root hash of last block id, last commit hash, data hash, validators hash (**_[2ß]_**) |
-| `next_validator_hash_and_consensus_hash` | `bytes`, fixed size = 32 | root hash of version and chain id components (**_[1ε]_**)                             |
-| `last_results_hash`                      | `bytes`, fixed size = 32 | hash of last results component (**_[B]_**)                                            |
-| `evidence_and_proposer_hash`             | `bytes`, fixed size = 32 | hash of evidence and proposer components (**_[2Δ]_**)                                 |
+| Field Name                               | Type                     | Description                                                                                               |
+| ---------------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `version_and_chain_id_hash`              | `bytes`, fixed size = 32 | root hash of version and chain id components (<strong><em>[1α]</em></strong>)                             |
+| `time_hash`                              | `bytes`, fixed size = 32 | hash of time component (<strong><em>[3]</em></strong>)                                                    |
+| `last_block_id_and_other`                | `bytes`, fixed size = 32 | root hash of last block id, last commit hash, data hash, validators hash (<strong><em>[2ß]</em></strong>) |
+| `next_validator_hash_and_consensus_hash` | `bytes`, fixed size = 32 | root hash of version and chain id components (<strong><em>[1ε]</em></strong>)                             |
+| `last_results_hash`                      | `bytes`, fixed size = 32 | hash of last results component (<strong><em>[B]</em></strong>)                                            |
+| `evidence_and_proposer_hash`             | `bytes`, fixed size = 32 | hash of evidence and proposer components (<strong><em>[2Δ]</em></strong>)                                 |
 
 #### tm_signature
 
@@ -240,7 +240,7 @@ contract Bridge {
 
 #### oracle_states
 
-A storage mapping that has the ability to map a positive integer (block height of BandChain) to a bytes32 (`oracle module`**_[g]_** root hash).
+A storage mapping that has the ability to map a positive integer (block height of BandChain) to a bytes32 (`oracle module`<strong><em>[g]</em></strong> root hash).
 For blockchains without the bytes32 type, something equivalent such as string, bytes or integer can be used instead.
 
 ```solidity
