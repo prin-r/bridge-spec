@@ -268,4 +268,18 @@ contract Bridge {
 
 #### get_total_validator_power
 
+Get the total voting power of active validators currently on duty. This function should read value of `total_validator_power` from the storage and then return it.
+
+params
+
+```
+no parameters
+```
+
+return values
+
+| Type      | Description                                                    |
+| --------- | -------------------------------------------------------------- |
+| `uint256` | value of `total_validator_power` that is read from the storage |
+
 xxxxxxxxxxxxx
