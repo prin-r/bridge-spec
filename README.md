@@ -188,16 +188,16 @@ A structure that encapsulates sibling module hashes of the `app_hash`**_[A]_** w
 
 #### block_header_merkle_parts
 
-A structure that encapsulates the components of a block header that correspond to height**_[2]_** and app hash **_[A]_**
+A structure that encapsulates the components of a block header that correspond to height**_[2]_** and app hash **_[A]_**.
 
-| Field Name                               | Type                     | Description                                               |
-| ---------------------------------------- | ------------------------ | --------------------------------------------------------- |
-| `version_and_chain_id_hash`              | `bytes`, fixed size = 32 | root hash of version and chain id components (**_[1α]_**) |
-| `time_hash`                              | `bytes`, fixed size = 32 | hash of time component (**_[3]_**)                        |
-| `last_block_id_and_other`                | `bytes`, fixed size = 32 | root hash of last_block_id and                            |
-| `next_validator_hash_and_consensus_hash` | `bytes`, fixed size = 32 | root hash of version and chain id components (**_[1ε]_**) |
-| `last_results_hash`                      | `bytes`, fixed size = 32 | hash of last results component (**_[B]_**)                |
-| `evidence_and_proposer_hash`             | `bytes`, fixed size = 32 | hash of evidence and proposer components (**_[2Δ]_**)     |
+| Field Name                               | Type                     | Description                                                                           |
+| ---------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------- |
+| `version_and_chain_id_hash`              | `bytes`, fixed size = 32 | root hash of version and chain id components (**_[1α]_**)                             |
+| `time_hash`                              | `bytes`, fixed size = 32 | hash of time component (**_[3]_**)                                                    |
+| `last_block_id_and_other`                | `bytes`, fixed size = 32 | root hash of last block id, last commit hash, data hash, validators hash (**_[2ß]_**) |
+| `next_validator_hash_and_consensus_hash` | `bytes`, fixed size = 32 | root hash of version and chain id components (**_[1ε]_**)                             |
+| `last_results_hash`                      | `bytes`, fixed size = 32 | hash of last results component (**_[B]_**)                                            |
+| `evidence_and_proposer_hash`             | `bytes`, fixed size = 32 | hash of evidence and proposer components (**_[2Δ]_**)                                 |
 
 #### tm_signature
 
