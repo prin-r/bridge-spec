@@ -188,7 +188,7 @@ A structure that encapsulates sibling module hashes of the `app_hash`<strong><em
 
 #### block_header_merkle_parts
 
-A structure that encapsulates the components of a block header that correspond to height <strong><em>[2]</em></strong> and app hash <strong><em>[A]</em></strong>.
+A structure that encapsulates the components of a block header that correspond to height<strong><em>[2]</em></strong> and app hash <strong><em>[A]</em></strong>.
 
 | Field Name                               | Type                     | Description                                                                                               |
 | ---------------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------- |
