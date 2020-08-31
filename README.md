@@ -31,6 +31,7 @@
   - [requests_caches](#requests_caches)
 - [Bridge's functions](#bridge's-functions)
   - [get_total_validator_power](#get_total_validator_power)
+  - [get_oracle_state](#get_oracle_state)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -217,58 +218,98 @@ hash. The prepended part (prefix) and the appended part (suffix) are different f
 
 #### total_validator_power
 
-A storage variable that has the ability to hold a positive integer.
+<strong>Example for creating the total_validator_power storage</strong>
 
-```solidity
-// An example of creating total_validator_power in Solidity.
-contract Bridge {
-    uint256 public total_validator_power;
-}
-```
+Solidity
+
+    ```solidity
+    contract Bridge {
+        uint256 public total_validator_power;
+    }
+    ```
+
+Score
+
+    ```python3
+    class Bridge(IconScoreBase):
+      def __init__(self, db: IconScoreDatabase) -> None:
+        self.total_validator_power = VarDB("total_validator_power", db, value_type=int)
+    ```
 
 #### validator_powers
 
 A storage mapping that has the ability to map an address to an integer.
 For blockchains without the address type, something equivalent such as string, bytes or integer can be used instead.
 
-```solidity
-// An example of creating validator_powers in Solidity.
-contract Bridge {
-    mapping(address => uint256) public validator_powers;
-}
-```
+<strong>Example for creating the validator_powers storage</strong>
+
+Solidity
+
+    ```solidity
+    contract Bridge {
+        mapping(address => uint256) public validator_powers;
+    }
+    ```
+
+Score
+
+    ```python3
+    class Bridge(IconScoreBase):
+      def __init__(self, db: IconScoreDatabase) -> None:
+        self.validator_powers = DictDB("validator_powers", db, value_type=int)
+    ```
 
 #### oracle_states
 
 A storage mapping that has the ability to map a positive integer (block height of BandChain) to a bytes32 (`oracle module`<strong><em>[g]</em></strong> root hash).
 For blockchains without the bytes32 type, something equivalent such as string, bytes or integer can be used instead.
 
-```solidity
-// An example of creating validator_powers in Solidity.
-contract Bridge {
-    // A mapping from BandChain's block height to BandChain's oracle module root hash.
-    mapping(uint256 => bytes32) public oracle_states;
-}
-```
+<strong>Example for creating the oracle_states storage</strong>
+
+Solidity
+
+    ```solidity
+    contract Bridge {
+        mapping(uint256 => bytes32) public oracle_states;
+    }
+    ```
+
+Score
+
+    ```python3
+    class Bridge(IconScoreBase):
+      def __init__(self, db: IconScoreDatabase) -> None:
+        self.oracle_state = DictDB("oracle_state", db, value_type=bytes)
+    ```
 
 #### requests_caches
 
 A storage mapping that has the ability to map a bytes32 (hash of request packet) to a struct response packet.
 For blockchains without the bytes32 type, something equivalent such as string, bytes or integer can be used instead.
 
-```solidity
-// An example of creating requests_caches in Solidity.
-contract Bridge {
-    // A mapping from hash of request packet to a struct response packet.
-    mapping(bytes32 => response_packet) public requests_caches;
-}
-```
+<strong>Example for creating the requests_caches storage</strong>
+
+Solidity
+
+    ```solidity
+    contract Bridge {
+      mapping(bytes32 => response_packet) public requests_caches;
+    }
+    ```
+
+Score
+
+    ```python3
+    class Bridge(IconScoreBase):
+      def __init__(self, db: IconScoreDatabase) -> None:
+        self.oracle_state = DictDB("oracle_state", db, value_type=bytes)
+    ```
 
 ## Bridge's functions
 
 #### get_total_validator_power
 
-Get the total voting power of active validators currently on duty. This function should read value of `total_validator_power` from the storage and then return it.
+Get the total voting power of active validators currently on duty. This function should read value from the storage `total_validator_power` and then return the value.
 
 params
 
@@ -278,8 +319,22 @@ no parameters
 
 return values
 
-| Type      | Description                                                    |
-| --------- | -------------------------------------------------------------- |
-| `uint256` | value of `total_validator_power` that is read from the storage |
+| Type  | Description                                                    |
+| ----- | -------------------------------------------------------------- |
+| `u64` | value of `total_validator_power` that is read from the storage |
 
-xxxxxxxxxxxxx
+#### get_oracle_state
+
+Get the iAVL Merkle tree hash of `oracle module`<strong><em>[g]</em></strong> from given block height of the BandChain. This function should read value from the storage `oracle_states` and then return the value.
+
+params
+
+| Type  | Description                                                                                                                                      |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `u64` | The height of block in BandChain that the `oracle module`<strong><em>[g]</em></strong> hash was relayed on the chain where this `Bridge` resides |
+
+return values
+
+| Type    | Description                                                                                 |
+| ------- | ------------------------------------------------------------------------------------------- |
+| `bytes` | The height of block that the `oracle module`<strong><em>[g]</em></strong> hash was relayed. |
