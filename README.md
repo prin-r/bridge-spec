@@ -302,7 +302,7 @@ Score
 ```python3
 class Bridge(IconScoreBase):
   def __init__(self, db: IconScoreDatabase) -> None:
-    # We store an encoded of response_packet because Score can only
+    # We store an encoded of response_packet because in Score we can only store primitive types
     self.requests_cache = DictDB("requests_cache", db, value_type=bytes)
 ```
 
