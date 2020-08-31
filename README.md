@@ -103,9 +103,9 @@ This process can be divided into two unrelated sub-processes.
 
 - 2. **verify_oracle_data**: Verify a specific value that store under `oracle module`**_[g]_** is really existed by hashing the corresponding node's from bottom to top.
 
-  - n is the height of IAVL merkle tree
-  - H(n) is an `oracle module`**_[g]_** root hash from the previous diagram.
-  - C(i) is a corresponding node to H(i) where **i ∈ {0,1,2,...,n-1}** .
+  - **n** is the height of IAVL merkle tree
+  - **H(n)** is an `oracle module`**_[g]_** root hash from the previous diagram.
+  - **C(i)** is a corresponding node to H(i) where **i ∈ {0,1,2,...,n-1}** .
 
   ```text
                             _______________[H(n)]_______________
