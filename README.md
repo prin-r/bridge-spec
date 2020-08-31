@@ -222,19 +222,19 @@ hash. The prepended part (prefix) and the appended part (suffix) are different f
 
 Solidity
 
-    ```solidity
-    contract Bridge {
-        uint256 public total_validator_power;
-    }
-    ```
+```solidity
+contract Bridge {
+    uint256 public total_validator_power;
+}
+```
 
 Score
 
-    ```python3
-    class Bridge(IconScoreBase):
-      def __init__(self, db: IconScoreDatabase) -> None:
-        self.total_validator_power = VarDB("total_validator_power", db, value_type=int)
-    ```
+```python3
+class Bridge(IconScoreBase):
+  def __init__(self, db: IconScoreDatabase) -> None:
+    self.total_validator_power = VarDB("total_validator_power", db, value_type=int)
+```
 
 #### validator_powers
 
@@ -245,19 +245,19 @@ For blockchains without the address type, something equivalent such as string, b
 
 Solidity
 
-    ```solidity
-    contract Bridge {
-        mapping(address => uint256) public validator_powers;
-    }
-    ```
+```solidity
+contract Bridge {
+    mapping(address => uint256) public validator_powers;
+}
+```
 
 Score
 
-    ```python3
-    class Bridge(IconScoreBase):
-      def __init__(self, db: IconScoreDatabase) -> None:
-        self.validator_powers = DictDB("validator_powers", db, value_type=int)
-    ```
+```python3
+class Bridge(IconScoreBase):
+  def __init__(self, db: IconScoreDatabase) -> None:
+    self.validator_powers = DictDB("validator_powers", db, value_type=int)
+```
 
 #### oracle_states
 
@@ -268,19 +268,19 @@ For blockchains without the bytes32 type, something equivalent such as string, b
 
 Solidity
 
-    ```solidity
-    contract Bridge {
-        mapping(uint256 => bytes32) public oracle_states;
-    }
-    ```
+```solidity
+contract Bridge {
+    mapping(uint256 => bytes32) public oracle_states;
+}
+```
 
 Score
 
-    ```python3
-    class Bridge(IconScoreBase):
-      def __init__(self, db: IconScoreDatabase) -> None:
-        self.oracle_state = DictDB("oracle_state", db, value_type=bytes)
-    ```
+```python3
+class Bridge(IconScoreBase):
+  def __init__(self, db: IconScoreDatabase) -> None:
+    self.oracle_state = DictDB("oracle_state", db, value_type=bytes)
+```
 
 #### requests_caches
 
