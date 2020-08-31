@@ -291,19 +291,20 @@ For blockchains without the bytes32 type, something equivalent such as string, b
 
 Solidity
 
-    ```solidity
-    contract Bridge {
-      mapping(bytes32 => response_packet) public requests_caches;
-    }
-    ```
+```solidity
+contract Bridge {
+  mapping(bytes32 => response_packet) public requests_caches;
+}
+```
 
 Score
 
-    ```python3
-    class Bridge(IconScoreBase):
-      def __init__(self, db: IconScoreDatabase) -> None:
-        self.oracle_state = DictDB("oracle_state", db, value_type=bytes)
-    ```
+```python3
+class Bridge(IconScoreBase):
+  def __init__(self, db: IconScoreDatabase) -> None:
+    # We store an encoded of response_packet because Score can only
+    self.requests_cache = DictDB("requests_cache", db, value_type=bytes)
+```
 
 ## Bridge's functions
 
