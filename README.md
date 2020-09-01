@@ -387,8 +387,6 @@ no return value
 
 <strong>Example implementation</strong>
 
-Score
-
 ```python3
 # Update validator powers by owner.
 # We use an encoded of [{bytes,u64}] in this case because right now Score does not support complex type parameters
@@ -436,8 +434,6 @@ return values
 
 <strong>Example implementation</strong>
 
-Score
-
 ```python3
 def merkle_leaf_hash(input: bytes) -> bytes:
     return sha256(bytes([0]) + input)
@@ -464,8 +460,6 @@ return values
 
 <strong>Example implementation</strong>
 
-Score
-
 ```python3
 def merkle_inner_hash(left: bytes, right: bytes) -> bytes:
     return sha256(bytes([1]) + left + right)
@@ -488,8 +482,6 @@ return values
 | `bytes` | result     | Encode varint unsigned of the `input` |
 
 <strong>Example implementation</strong>
-
-Score
 
 ```python3
 def encode_varint_unsigned(input: int) -> bytes:
@@ -517,8 +509,6 @@ return values
 | `bytes` | result     | Encode varint signed of the `input` |
 
 <strong>Example implementation</strong>
-
-Score
 
 ```python3
 def encode_varint_signed(input: int) -> bytes:
@@ -584,8 +574,6 @@ return values
 10. return `BlockHash`
 
 <strong>Example implementation</strong>
-
-Score
 
 ```python3
 # Notice that we use bytes instead of struct block_header_merkle_parts because currently Score does not support sturct parameters. So the bytes block_header_merkle_parts in this case is just a concatenation of every fields from struct block_header_merkle_parts.
