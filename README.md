@@ -116,6 +116,7 @@ This process can be divided into two unrelated sub-processes.
 
   - **n** is the height of IAVL merkle tree
   - **H(n)** is an `oracle module`<strong><em>[g]</em></strong> root hash from the previous diagram.
+    - **H(0)** is basically derived from **value**
   - **C(i)** is a corresponding node to H(i) where **i ∈ {0,1,2,...,n-1}** .
 
   ```text
@@ -133,7 +134,8 @@ This process can be divided into two unrelated sub-processes.
                               /                    \
                            [H(1)]                 [C(1)]
                          /        \             /        \
-                     [value]     [C(0)]       ...        ...
+                      [H(0)]     [C(0)]       ...        ...
+                      [value]
   ```
 
 ## Structs
@@ -437,7 +439,7 @@ Score
 
 ```python3
 def merkle_leaf_hash(input: bytes) -> bytes:
-    return sha256.digest(bytes([0]) + input)
+    return sha256(bytes([0]) + input)
 ```
 
 #### merkle_inner_hash
@@ -465,7 +467,7 @@ Score
 
 ```python3
 def merkle_inner_hash(left: bytes, right: bytes) -> bytes:
-    return sha256.digest(bytes([1]) + left + right)
+    return sha256(bytes([1]) + left + right)
 ```
 
 #### encode_varint_unsigned
@@ -671,7 +673,7 @@ def get_app_hash(multi_store_proof: bytes) -> bytes:
                     merkle_leaf_hash(  # [ρ4]
                         # oracle prefix (uint8(6) + "oracle" + uint8(32))
                         bytes.fromhex("066f7261636c6520")
-                        + sha256.digest(sha256.digest(oracle_iavl_state_hash))
+                        + sha256(sha256(oracle_iavl_state_hash))
                     ),  # [6]
                     params_stores_merkle_hash,  # [ρ7]
                 ),
@@ -743,10 +745,10 @@ def get_parent_hash(
 ) -> bytes:
     left_subtree = sibling_hash if is_data_on_right else data_subtree_hash
     right_subtree = data_subtree_hash if is_data_on_right else sibling_hash
-    return sha256.digest(
+    return sha256(
         bytes([(subtree_height << 1) & 255]) +
-        utils.encode_varint_signed(subtree_size) +
-        utils.encode_varint_signed(subtree_version) +
+        encode_varint_signed(subtree_size) +
+        encode_varint_signed(subtree_version) +
         bytes([32]) +
         left_subtree +
         bytes([32]) +
@@ -773,6 +775,20 @@ return values
 no return value
 ```
 
+1. Calculate `AppHash` by calling [get_app_hash](#get_app_hash)(`multi_store_proof`).
+
+2. Calculate `BlockHash` by calling [get_block_header](#get_block_header)(`block_header_merkle_parts`, `app_hash`, `block_height`).
+
+3. Loop recover every signature from `signatures`.
+
+   - Check that there is no repeated public key.
+   - Read validator's voting power from storage [voting_powers](#voting_powers) by the public key that just recovered. If the public key is not found then the voting power should be 0.
+   - Accumulate the voting power
+
+4. Check that the accumulate of voting power should be greater than or equal 2/3 of the [total_validator_power](#total_validator_power).
+
+5. Save the `oracle mudule`**_[g]_** hash to the storage [oracle_state](#oracle_state).
+
 <strong>Example implementation</strong>
 
 ```python3
@@ -796,8 +812,8 @@ def relay_oracle_state(
       ]
       """
     )
-    app_hash = multi_store.get_app_hash(multi_store_proof)
-    block_hash = merkle_part.get_block_header(block_header_merkle_parts, app_hash, block_height)
+    app_hash = get_app_hash(multi_store_proof)
+    block_hash = get_block_header(block_header_merkle_parts, app_hash, block_height)
     recover_signers = recover_signer(sig["r"], sig["s"], sig["v"], sig["signed_data_prefix"], sig["signed_data_suffix"], block_hash) for sig in obi.decode(signatures)
     sum_voting_power = 0
     signers_checking = set()
@@ -833,7 +849,40 @@ return values
 | ----------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------- |
 | `{{string,u64,bytes,u64,u64},{string,u64,u64,u64,u64,u32,bytes}}` | request_packet_and_respond_packet | A struct or a tuple of `request_packet` and `response_packet` |
 
-1. Read the oracle_state from the state of the `Bridge` to check if this status is available or not.
+```text
+n is the height of IAVL merkle tree.
+
+H(n) is an oracle module root hash from the previous diagram.
+  - H(0) is sha256(bytes([0]) + bytes([2]) + encode_varint_signed(version) + bytes([9]) + b"\xff" + request_id.to_bytes(8,'big') + bytes([32]) + sha256(obi_encode(request_packet_and_respond_packet)))
+
+C(i) is a corresponding node to H(i) where i ∈ {0,1,2,...,n-1}.
+
+                      _______________[H(n)]_______________
+                    /                                      \
+        _______[H(n-1)]______                             [C(n-1)]
+      /                      \                          /        \
+  [C(n-2)]                    \                       ...        ...
+  /        \                    .
+...        ...                   .
+                                  .
+                                  \
+                                    \
+                          _______[H(2)]______
+                        /                    \
+                      [H(1)]                 [C(1)]
+                    /        \             /        \
+                 [H(0)]     [C(0)]       ...        ...
+                 [value]
+```
+
+1. Read the `oracle module`**_[g]_** hash from the given `block_height` to check if it is available or not.
+
+   - If the `oracle module`**_[g]_** hash is not available for the given `block_height` then `revert`
+   - Else contiune
+
+2. Calculate `H(0)`
+
+3. ## Calculate the `oracle module`**_[g]_** hash by hashing from bottom to the top
 
 <strong>Example implementation</strong>
 
@@ -868,18 +917,18 @@ def verify_oracle_data(
         """
     ).decode(request_packet_and_respond_packet)
 
-    current_merkle_hash = sha256.digest(
+    current_merkle_hash = sha256(
         # Height of tree (only leaf node) is 0 (signed-varint encode)
         bytes([0])
         + bytes([2])  # Size of subtree is 1 (signed-varint encode)
-        + utils.encode_varint_signed(version)
+        + encode_varint_signed(version)
         +
         # Size of data key (1-byte constant 0x01 + 8-byte request ID)
         bytes([9])
         + b"\xff"  # Constant 0xff prefix data request info storage key
         + packet["res"]["request_id"].to_bytes(8, "big")
         + bytes([32])  # Size of data hash
-        + sha256.digest(request_packet_and_respond_packet)
+        + sha256(request_packet_and_respond_packet)
     )
 
     len_merkle_paths = PyObi(
