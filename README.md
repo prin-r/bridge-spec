@@ -33,6 +33,9 @@
   - [get_total_validator_power](#get_total_validator_power)
   - [get_oracle_state](#get_oracle_state)
   - [get_validator_power](#get_validator_power)
+  - [merkle_leaf_hash](#merkle_leaf_hash)
+  - [merkle_inner_hash](#merkle_inner_hash)
+  - [encode_varint_unsigned](#encode_varint_unsigned)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -453,4 +456,54 @@ Score
 ```python3
 def merkle_inner_hash(left: bytes, right: bytes) -> bytes:
     return sha256.digest(bytes([1]) + left + right)
+```
+
+#### encode_varint_unsigned
+
+This function receive an integer as an `input` and then return an [encode varint unsigned of the `input`](#https://developers.google.com/protocol-buffers/docs/encoding).
+
+params
+
+| Type        | Field Name | Description          |
+| ----------- | ---------- | -------------------- |
+| any integer | `input`    | Any unsigned integer |
+
+return values
+
+| Type    | Field Name | Description                           |
+| ------- | ---------- | ------------------------------------- |
+| `bytes` | result     | Encode varint unsigned of the `input` |
+
+Score
+
+```python3
+def encode_varint_unsigned(input: int) -> bytes:
+    result = b""
+    while input > 0:
+        result += bytes([128 | (input & 127)])
+        input >>= 7
+    return result[: len(result) - 1] + bytes([result[len(result) - 1] & 127])
+```
+
+#### encode_varint_signed
+
+This function receive an integer as an `input` and then return an [encode varint signed of the `input`](#https://developers.google.com/protocol-buffers/docs/encoding). We can say it basically return [encode_varint_unsigned(input ⨯ 2)](#encode_varint_unsigned)
+
+params
+
+| Type        | Field Name | Description        |
+| ----------- | ---------- | ------------------ |
+| any integer | `input`    | Any signed integer |
+
+return values
+
+| Type    | Field Name | Description                         |
+| ------- | ---------- | ----------------------------------- |
+| `bytes` | result     | Encode varint signed of the `input` |
+
+Score
+
+```python3
+def encode_varint_signed(input: int) -> bytes:
+    return encode_varint_unsigned(input * 2)
 ```
