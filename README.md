@@ -567,22 +567,22 @@ Score
 ```python3
 # Notice that we use bytes instead of struct block_header_merkle_parts because currently Score does not support sturct parameters. So the bytes block_header_merkle_parts in this case is just a concatenation of every fields from struct block_header_merkle_parts.
 def get_block_header(block_header_merkle_parts: bytes, app_hash: bytes, block_height: int) -> bytes:
-    return utils.merkle_inner_hash(  # [BlockHeader]
-        utils.merkle_inner_hash(  # [3α]
-            utils.merkle_inner_hash(  # [2α]
+    return merkle_inner_hash(  # [BlockHeader]
+        merkle_inner_hash(  # [3α]
+            merkle_inner_hash(  # [2α]
                 block_header_merkle_parts[0:32],  # [1α]
-                utils.merkle_inner_hash(  # [1ß]
-                    utils.merkle_leaf_hash(utils.encode_varint_unsigned(block_height)),  # [2]
+                merkle_inner_hash(  # [1ß]
+                    merkle_leaf_hash(encode_varint_unsigned(block_height)),  # [2]
                     block_header_merkle_parts[32:64],  # [3]
                 ),
             ),
             block_header_merkle_parts[64:96],  # [2ß]
         ),
-        utils.merkle_inner_hash(  # [3ß]
-            utils.merkle_inner_hash(  # [2Γ]
+        merkle_inner_hash(  # [3ß]
+            merkle_inner_hash(  # [2Γ]
                 block_header_merkle_parts[96:128],  # [1ε]
-                utils.merkle_inner_hash(  # [1ζ]
-                    utils.merkle_leaf_hash(bytes([32]) + app_hash), block_header_merkle_parts[128:160]  # [A], [B]
+                merkle_inner_hash(  # [1ζ]
+                    merkle_leaf_hash(bytes([32]) + app_hash), block_header_merkle_parts[128:160]  # [A], [B]
                 ),
             ),
             block_header_merkle_parts[160:192],  # [2Δ]
