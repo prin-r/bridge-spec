@@ -615,7 +615,7 @@ def get_block_header(block_header_merkle_parts: bytes, app_hash: bytes, block_he
 This function receive a struct `multi_store_proof` as an input and then return the `AppHash` by the calculation according to [`merkle tree`](https://en.wikipedia.org/wiki/Merkle_tree) hashing scheme.
 
 ```text
-                      ________________[AppHash]_______________
+                        ________________[AppHash]______________
                       /                                        \
             _______[ρ9]______                          ________[ρ10]________
           /                  \                       /                     \
