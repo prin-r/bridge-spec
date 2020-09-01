@@ -12,7 +12,7 @@
 - [Introduction](#introduction)
 - [Utility Functions](#utility-functions)
   - sha256
-  - secp256k1 public key recovery
+  - ecrecover
 - [Dependency](#dependency)
   - OBI
 - [Lite Client Verification Overview](#lite-client-verification-overview)
@@ -53,7 +53,7 @@ To implement the **Bridge** we only need two utility functions.
 
 - 1. [sha256](https://en.wikipedia.org/wiki/SHA-2)
   - see python example implementation [here](utils/sha256.py)
-- 2. [secp256k1 public key recovery](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm)
+- 2. [ecrecover](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm)
   - see python example implementation [here](utils/secp256k1.py)
 
 ## Dependency
@@ -544,6 +544,20 @@ This function receive 3 parameters which are struct `block_header_merkle_parts`,
 [C] - evidence_hash         [D] - proposer_address
 ```
 
+params
+
+| Type                                    | Field Name                  | Description                          |
+| --------------------------------------- | --------------------------- | ------------------------------------ |
+| `{bytes,bytes,bytes,bytes,bytes,bytes}` | `block_header_merkle_parts` | A struct `block_header_merkle_parts` |
+| `bytes`                                 | `input`                     | Any signed integer                   |
+| `u64`                                   | `input`                     | Any signed integer                   |
+
+return values
+
+| Type                     | Field Name  | Description                                   |
+| ------------------------ | ----------- | --------------------------------------------- |
+| `bytes`, fixed size = 32 | `BlockHash` | The block hash of BancChain at `block_height` |
+
 1. **_[2]_** = [merkle_leaf_hash](#merkle_leaf_hash)([encode_varint_unsigned](#encode_varint_unsigned)(`block_height`))
 
 2. **_[1ß]_** = [merkle_inner_hash](#merkle_inner_hash)(**_[2]_**, `block_header_merkle_parts.time_hash`**_[3]_**)
@@ -615,6 +629,18 @@ This function receive a struct `multi_store_proof` as an input and then return t
 [i] - slashing [j] - staking [k] - supply    [l] - upgrade
 ```
 
+params
+
+| Type                              | Field Name        | Description                  |
+| --------------------------------- | ----------------- | ---------------------------- |
+| `{bytes,bytes,bytes,bytes,bytes}` | multi_store_proof | A struct `multi_store_proof` |
+
+return values
+
+| Type                   | Field Name | Description   |
+| ---------------------- | ---------- | ------------- |
+| `bytes`, fix size = 32 | result     | The `AppHash` |
+
 1. **_[g]_** = [merkle_leaf_hash](#merkle_leaf_hash)(0x066f7261636c6520 + sha256(sha256(`multi_store_proof.oracle_iavl_state_hash`))) // calculate double sha256 of multi_store_proof.oracle_iavl_state_hash and then prepend with oracle prefix (uint8(6) + "oracle" + uint8(32)) and then calculate merkle_leaf_hash
 
 2. **_[ρ4]_** = [merkle_inner_hash](#merkle_inner_hash)(**_[g]_**, `multi_store_proof.params_stores_merkle_hash`**_[h]_**)
@@ -655,7 +681,22 @@ def get_app_hash(multi_store_proof: bytes) -> bytes:
 
 #### recover_signer
 
-This fucntion
+This fucntion receive a struct `tm_signature` as an input and return a validator's public key by using [ecrecover](#ecrecover).
+
+params
+
+| Type                           | Field Name   | Description                 |
+| ------------------------------ | ------------ | --------------------------- |
+| `{bytes,bytes,u8,bytes,bytes}` | tm_signature | A struct `tm_signature`     |
+| `bytes`                        | block_hash   | The block hash of BandChain |
+
+return values
+
+| Type    | Field Name | Description                   |
+| ------- | ---------- | ----------------------------- |
+| `bytes` | public_key | The pulbic key of a validator |
+
+<strong>Example implementation</strong>
 
 ```python3
 def recover_signer(
@@ -666,7 +707,7 @@ def recover_signer(
     signed_data_suffix: bytes,
     block_hash: bytes
 ) -> bytes:
-    return secp256k1.ecrecover(sha256.digest(signed_data_prefix+block_hash+signed_data_suffix), r, s, v)
+    return ecrecover(sha256(signed_data_prefix + block_hash + signed_data_suffix), r, s, v)
 ```
 
 #### get_parent_hash
