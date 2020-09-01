@@ -32,6 +32,7 @@
 - [Bridge's functions](#bridge's-functions)
   - [get_total_validator_power](#get_total_validator_power)
   - [get_oracle_state](#get_oracle_state)
+  - [get_validator_power](#get_validator_power)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -130,12 +131,12 @@ This process can be divided into two unrelated sub-processes.
 
 #### validator_with_power
 
-A structure that encapsulates the address and the amount of voting power on BandChain of a single validator.
+A structure that encapsulates the public key and the amount of voting power on BandChain of a single validator.
 
-| Field Name  | Type      | Description                           |
-| ----------- | --------- | ------------------------------------- |
-| `validator` | `address` | validator's address                   |
-| `power`     | `uint256` | validator's voting power on BandChain |
+| Field Name  | Type                | Description                                                                                                                           |
+| ----------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `validator` | `bytes`, fixed size | validator's public key or something unique that is derived from public key such as hash of public key, compression form of public key |
+| `power`     | `u64`               | validator's voting power on BandChain                                                                                                 |
 
 #### request_packet
 
@@ -285,7 +286,7 @@ class Bridge(IconScoreBase):
 #### requests_caches
 
 A storage mapping that has the ability to map a bytes32 (hash of request packet) to a struct response packet.
-For blockchains without the bytes32 type, something equivalent such as string, bytes or integer can be used instead.
+For blockchains without the bytes32 type, something equivalent such as string, bytes or integer can be used instead. And for blockchains who do not have money can use gold instead
 
 <strong>Example for creating the requests_caches storage</strong>
 
@@ -320,9 +321,9 @@ no parameters
 
 return values
 
-| Type  | Description                                                    |
-| ----- | -------------------------------------------------------------- |
-| `u64` | value of `total_validator_power` that is read from the storage |
+| Type  | Field Name         | Description                                                    |
+| ----- | ------------------ | -------------------------------------------------------------- |
+| `u64` | total voting power | value of `total_validator_power` that is read from the storage |
 
 #### get_oracle_state
 
@@ -330,12 +331,100 @@ Get the iAVL Merkle tree hash of `oracle module`<strong><em>[g]</em></strong> fr
 
 params
 
-| Type  | Description                                                                                                                                      |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `u64` | The height of block in BandChain that the `oracle module`<strong><em>[g]</em></strong> hash was relayed on the chain where this `Bridge` resides |
+| Type  | Field Name   | Description                                                                                                                                      |
+| ----- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `u64` | block height | The height of block in BandChain that the `oracle module`<strong><em>[g]</em></strong> hash was relayed on the chain where this `Bridge` resides |
 
 return values
 
-| Type    | Description                                                                                 |
-| ------- | ------------------------------------------------------------------------------------------- |
-| `bytes` | The height of block that the `oracle module`<strong><em>[g]</em></strong> hash was relayed. |
+| Type    | Field Name        | Description                                              |
+| ------- | ----------------- | -------------------------------------------------------- |
+| `bytes` | oracle state hash | Hash of the `oracle module`<strong><em>[g]</em></strong> |
+
+#### get_validator_power
+
+Get voting power of a validator on BandChain from the storage `validator_power`. This function receive the public key of the validator (can be hash of the public key) and then return the voting power.
+
+params
+
+| Type    | Field Name |                                                                                                                                                                                                                                                                                 | Description |
+| ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `bytes` | validator  | The public key of a validator or something unique that is derived from public such as hash of public key (in Ethereum block chain, we use type `address`). This can be any type that can be used to represent public key. For example `bytes`, `address`, `uint`, `string`, ... |
+
+return values
+
+| Type  | Field Name   | Description                 |
+| ----- | ------------ | --------------------------- |
+| `u64` | voting power | Voting power of a validator |
+
+#### update_validator_powers
+
+Update validator powers by owner. This function receive array of struct `validator_with_power` and then update storages `validator_power` and `total_voting_power` without returning any value. The encoded format of the array of struct `validator_with_power` can be used instead in case the platform does not support the use of the complex type parameters.
+
+params
+
+| Type            | Field Name            | Description                               |
+| --------------- | --------------------- | ----------------------------------------- |
+| `[{bytes,u64}]` | validators with power | An array of struct `validator_with_power` |
+
+return values
+
+```
+no return value
+```
+
+<strong>Example implementation</strong>
+
+Score
+
+```python3
+# Update validator powers by owner.
+# We use an encoded of [{bytes,u64}] in this case because right now Score does not support complex type parameters
+# @param validators_bytes OBI encoded of the changed set of BandChain validators.
+@external
+def update_validator_powers(self, validators_bytes: bytes):
+    # This function can only be call by owner
+    if self.msg.sender != self.owner:
+        self.revert("NOT_AUTHORIZED")
+
+    obi = PyObi("""[{pubkey:bytes, power:u64}]""")
+    total_validator_power = self.total_validator_power.get()
+    for validator_with_power in obi.decode(validators_bytes):
+        pubkey = validator_with_power["pubkey"]
+        power = validator_with_power["power"]
+        if len(pubkey) != 64:
+            self.revert(f"PUBKEY_SHOULD_BE_64_BYTES_BUT_GOT_{len(pubkey)}_BYTES")
+
+        total_validator_power -= self.validator_powers[pubkey]
+        total_validator_power += power
+
+        self.validator_powers[pubkey] = power
+
+    self.total_validator_power.set(total_validator_power)
+```
+
+#### merkle_leaf_hash
+
+This function receive any bytes as an `input` an do these following step.
+
+1. prepend the `input` with a zero byte.
+2. return sha256 of the result from `1.`.
+
+params
+
+| Type    | Field Name | Description |
+| ------- | ---------- | ----------- |
+| `bytes` | `input`    | Any bytes   |
+
+return values
+
+| Type                     | Field Name | Description          |
+| ------------------------ | ---------- | -------------------- |
+| `bytes`, fixed size = 32 | result     | sha256(0x00 + input) |
+
+Score
+
+```python3
+def merkle_leaf_hash(input: bytes) -> bytes:
+    return sha256.digest(bytes([0]) + input)
+```
