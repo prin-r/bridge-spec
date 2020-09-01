@@ -712,6 +712,24 @@ def recover_signer(
 
 #### get_parent_hash
 
+This fucntion receive a struct `iavl_merkle_path` and data_subtree_hash bytes as inputs and return the parent hash of them.
+
+params
+
+| Type                      | Field Name        | Description                     |
+| ------------------------- | ----------------- | ------------------------------- |
+| `{bool,u8,u64,u64,bytes}` | iavl_merkle_path  | A struct `iavl_merkle_path`     |
+| `bytes`                   | data_subtree_hash | The hash of a node in IAVL tree |
+
+return values
+
+| Type                      | Field Name        | Description                     |
+| ------------------------- | ----------------- | ------------------------------- |
+| `{bool,u8,u64,u64,bytes}` | iavl_merkle_path  | A struct `iavl_merkle_path`     |
+| `bytes`                   | data_subtree_hash | The hash of a node in IAVL tree |
+
+<strong>Example implementation</strong>
+
 This function receive a struct `iavl_merkle_path` and then return the parent hash
 
 ```python3
