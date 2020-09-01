@@ -542,4 +542,50 @@ This function receive 3 parameters which are struct `block_header_merkle_parts`,
 [C] - evidence_hash         [D] - proposer_address
 ```
 
-1. `encoded_block_height` = [encode_varint_unsigned(`block_height`)](#encode_varint_unsigned)
+1. **_[2]_** = [merkle_leaf_hash](#merkle_leaf_hash)([encode_varint_unsigned](#encode_varint_unsigned)(`block_height`))
+
+2. **_[1ß]_** = [merkle_inner_hash](#merkle_inner_hash)(**_[2]_**, `block_header_merkle_parts.time_hash`**_[3]_**)
+
+3. **_[2α]_** = [merkle_inner_hash](#merkle_inner_hash)(`block_header_merkle_parts.version_and_chain_id_hash`**_[1α]_**, **_[1ß]_**)
+
+4. **_[3α]_** = [merkle_inner_hash](#merkle_inner_hash)(**_[2α]_**, `block_header_merkle_parts.last_block_id_and_other`**_[2ß]_**)
+
+5. **_[A]_** = [merkle_leaf_hash](#merkle_leaf_hash)(bytes([32]) + app_hash) // Prepend with a byte of 32 or 0x20
+
+6. **_[1ζ]_** = [merkle_inner_hash](#merkle_inner_hash)(**_[A]_**, `block_header_merkle_parts.last_results_hash`**_[B]_**)
+
+7. **_[2Γ]_** = [merkle_inner_hash](#merkle_inner_hash)(`block_header_merkle_parts.next_validator_hash_and_consensus_hash`**_[1ε]_**, **_[1ζ]_**)
+
+8. **_[3ß]_** = [merkle_inner_hash](#merkle_inner_hash)(**_[2Γ]_**, `block_header_merkle_parts.evidence_and_proposer_hash`**_[2Δ]_**)
+
+9. `BlockHash` = [merkle_inner_hash](#merkle_inner_hash)(**_[3α]_**,**_[3ß]_**)
+
+<strong>Example implementation</strong>
+
+Score
+
+```python3
+# Notice that we use bytes instead of struct block_header_merkle_parts because currently Score does not support sturct parameters. So the bytes block_header_merkle_parts in this case is just a concatenation of every fields from struct block_header_merkle_parts.
+def get_block_header(block_header_merkle_parts: bytes, app_hash: bytes, block_height: int) -> bytes:
+    return utils.merkle_inner_hash(  # [BlockHeader]
+        utils.merkle_inner_hash(  # [3α]
+            utils.merkle_inner_hash(  # [2α]
+                block_header_merkle_parts[0:32],  # [1α]
+                utils.merkle_inner_hash(  # [1ß]
+                    utils.merkle_leaf_hash(utils.encode_varint_unsigned(block_height)),  # [2]
+                    block_header_merkle_parts[32:64],  # [3]
+                ),
+            ),
+            block_header_merkle_parts[64:96],  # [2ß]
+        ),
+        utils.merkle_inner_hash(  # [3ß]
+            utils.merkle_inner_hash(  # [2Γ]
+                block_header_merkle_parts[96:128],  # [1ε]
+                utils.merkle_inner_hash(  # [1ζ]
+                    utils.merkle_leaf_hash(bytes([32]) + app_hash), block_header_merkle_parts[128:160]  # [A], [B]
+                ),
+            ),
+            block_header_merkle_parts[160:192],  # [2Δ]
+        ),
+    )
+```
