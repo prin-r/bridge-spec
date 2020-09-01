@@ -50,7 +50,7 @@
 
 ## Introduction
 
-At Band Protocol, we provide a way for other blockchains to access off-chain information through our decentralized oracle. As part of that offering, we also provide a specification of lite client verification for anyone who requested data from our oracle to verify the validity of the result they received. We call the instance of lite client that is existed on other blockchains **Bridge**. The implementation of **Bridge** can be a smart contract (additional logic published by user) or a module (build in logic of a blockchain). In this document, we're going to focus about implementation, so if you want an overview of the **Bridge** and its cross chain interaction, check out this [blogpost](https://medium.com/bandprotocol/understanding-band-oracle-3-lite-client-verification-d03ed3f4ccb8).
+At Band Protocol, we provide a way for other blockchains to access off-chain information through our decentralized oracle. As part of that offering, we also provide a specification of lite client verification for anyone who requested data from our oracle to verify the validity of the result they received. We call the instance of lite client that is existed on other blockchains **Bridge**. The implementation of **Bridge** can be a smart contract (additional logic published by user) or a module (build in logic of a blockchain). In this document, we're going to focus about implementation, so if you want an overview of the **Bridge** and its cross chain interaction, check out this [https://medium.com/bandprotocol/understanding-band-oracle-3-lite-client-verification-d03ed3f4ccb8](https://medium.com/bandprotocol/understanding-band-oracle-3-lite-client-verification-d03ed3f4ccb8).
 
 ## Utility Functions
 
