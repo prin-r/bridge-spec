@@ -814,7 +814,7 @@ def relay_oracle_state(
     )
     app_hash = get_app_hash(multi_store_proof)
     block_hash = get_block_header(block_header_merkle_parts, app_hash, block_height)
-    recover_signers = recover_signer(sig["r"], sig["s"], sig["v"], sig["signed_data_prefix"], sig["signed_data_suffix"], block_hash) for sig in obi.decode(signatures)
+    recover_signers = [recover_signer(sig["r"], sig["s"], sig["v"], sig["signed_data_prefix"], sig["signed_data_suffix"], block_hash) for sig in obi.decode(signatures)]
     sum_voting_power = 0
     signers_checking = set()
     for signer in recover_signers:
