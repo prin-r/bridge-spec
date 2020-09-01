@@ -779,7 +779,7 @@ no return value
 
 2. Calculate `BlockHash` by calling [get_block_header](#get_block_header)(`block_header_merkle_parts`, `app_hash`, `block_height`).
 
-3. Loop recover every signature from `signatures`.
+3. Loop recover every signature from `signatures`. In each round we will get the public key of the validator who have signed on the hash of `signed_data_prefix`, `block_hash` and `signed_data_suffix`.
 
    - Check that there is no repeated public key.
    - Read validator's voting power from storage [voting_powers](#voting_powers) by the public key that just recovered. If the public key is not found then the voting power should be 0.
