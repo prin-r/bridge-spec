@@ -426,6 +426,8 @@ return values
 | ------------------------ | ---------- | -------------------- |
 | `bytes`, fixed size = 32 | result     | sha256(0x00 + input) |
 
+<strong>Example implementation</strong>
+
 Score
 
 ```python3
@@ -452,6 +454,8 @@ return values
 | ------------------------ | ---------- | --------------------------- |
 | `bytes`, fixed size = 32 | result     | sha256(0x01 + left + right) |
 
+<strong>Example implementation</strong>
+
 Score
 
 ```python3
@@ -474,6 +478,8 @@ return values
 | Type    | Field Name | Description                           |
 | ------- | ---------- | ------------------------------------- |
 | `bytes` | result     | Encode varint unsigned of the `input` |
+
+<strong>Example implementation</strong>
 
 Score
 
@@ -501,6 +507,8 @@ return values
 | Type    | Field Name | Description                         |
 | ------- | ---------- | ----------------------------------- |
 | `bytes` | result     | Encode varint signed of the `input` |
+
+<strong>Example implementation</strong>
 
 Score
 
