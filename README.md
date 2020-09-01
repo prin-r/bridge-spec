@@ -40,6 +40,8 @@
   - [get_block_header](#get_block_header)
   - [recover_signer](#recover_signer)
   - [get_parent_hash](#get_parent_hash)
+  - [relay_oracle_state](#relay_oracle_state)
+  - [verify_oracle_data](#verify_oracle_data)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -730,8 +732,6 @@ return values
 
 <strong>Example implementation</strong>
 
-This function receive a struct `iavl_merkle_path` and then return the parent hash
-
 ```python3
 def get_parent_hash(
     is_data_on_right: bool,
@@ -752,4 +752,162 @@ def get_parent_hash(
         bytes([32]) +
         right_subtree
     )
+```
+
+#### relay_oracle_state
+
+This function relays a new `oracle module`**_[g]_** hash to the `Bridge`.
+
+params
+
+| Type                                    | Field Name                | Description                          |
+| --------------------------------------- | ------------------------- | ------------------------------------ |
+| `u64`                                   | block_height              | Block height of BancChain            |
+| `{bytes,bytes,bytes,bytes,bytes}`       | multi_store_proof         | A struct `multi_store_proof`         |
+| `{bytes,bytes,bytes,bytes,bytes,bytes}` | block_header_merkle_parts | A struct `block_header_merkle_parts` |
+| `[{bytes,bytes,u8,bytes,bytes}]`        | signatures                | An array of struct `signatures`      |
+
+return values
+
+```
+no return value
+```
+
+<strong>Example implementation</strong>
+
+```python3
+def relay_oracle_state(
+    self,
+    block_height: int,
+    multi_store_proof: bytes,
+    block_header_merkle_parts: bytes,
+    signatures: bytes,
+) -> None:
+    obi = PyObi(
+      """
+      [
+          {
+              r: bytes,
+              s: bytes,
+              v: u8,
+              signed_data_prefix: bytes,
+              signed_data_suffix: bytes
+          }
+      ]
+      """
+    )
+    app_hash = multi_store.get_app_hash(multi_store_proof)
+    block_hash = merkle_part.get_block_header(block_header_merkle_parts, app_hash, block_height)
+    recover_signers = recover_signer(sig["r"], sig["s"], sig["v"], sig["signed_data_prefix"], sig["signed_data_suffix"], block_hash) for sig in obi.decode(signatures)
+    sum_voting_power = 0
+    signers_checking = set()
+    for signer in recover_signers:
+        if signer in signers_checking:
+            self.revert(f"REPEATED_PUBKEY_FOUND: {signer.hex()}")
+
+        signers_checking.add(signer)
+        sum_voting_power += self.validator_powers[signer]
+
+    if sum_voting_power * 3 <= self.total_validator_power.get() * 2:
+        self.revert("INSUFFICIENT_VALIDATOR_SIGNATURES")
+
+    self.oracle_state[block_height] = multi_store_proof[64:96]
+```
+
+#### verify_oracle_data
+
+This function verifies that the given data is a valid data on BandChain as of the given block height.
+
+params
+
+| Type                                                              | Field Name                        | Description                                                                                                       |
+| ----------------------------------------------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `u64`                                                             | block_height                      | Block height of BancChain                                                                                         |
+| `{{string,u64,bytes,u64,u64},{string,u64,u64,u64,u64,u32,bytes}}` | request_packet_and_respond_packet | A struct or a tuple of `request_packet` and `response_packet`                                                     |
+| `u64`                                                             | version                           | Lastest block height that the data node was updated                                                               |
+| `[{bool,u8,u64,u64,bytes}]`                                       | iavl_merkle_paths                 | An array of `iavl_merkle_path` which is the merkle proof that shows how the data leave is part of the oracle iAVL |
+
+return values
+
+| Type                                                              | Field Name                        | Description                                                   |
+| ----------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------- |
+| `{{string,u64,bytes,u64,u64},{string,u64,u64,u64,u64,u32,bytes}}` | request_packet_and_respond_packet | A struct or a tuple of `request_packet` and `response_packet` |
+
+<strong>Example implementation</strong>
+
+```python3
+def verify_oracle_data(
+    self, block_height: int, request_packet_and_respond_packet: bytes, version: int, iavl_merkle_paths: bytes
+) -> dict:
+    oracle_state_root = self.oracle_state[block_height]
+    if oracle_state_root == None:
+        self.revert("NO_ORACLE_ROOT_STATE_DATA")
+
+    packet = PyObi(
+        """
+        {
+            req: {
+                client_id: string,
+                oracle_script_id: u64,
+                calldata: bytes,
+                ask_count: u64,
+                min_count: u64
+            },
+            res: {
+                client_id: string,
+                request_id: u64,
+                ans_count: u64,
+                request_time: u64,
+                resolve_time: u64,
+                resolve_status: u32,
+                result: bytes
+            }
+        }
+        """
+    ).decode(request_packet_and_respond_packet)
+
+    current_merkle_hash = sha256.digest(
+        # Height of tree (only leaf node) is 0 (signed-varint encode)
+        bytes([0])
+        + bytes([2])  # Size of subtree is 1 (signed-varint encode)
+        + utils.encode_varint_signed(version)
+        +
+        # Size of data key (1-byte constant 0x01 + 8-byte request ID)
+        bytes([9])
+        + b"\xff"  # Constant 0xff prefix data request info storage key
+        + packet["res"]["request_id"].to_bytes(8, "big")
+        + bytes([32])  # Size of data hash
+        + sha256.digest(request_packet_and_respond_packet)
+    )
+
+    len_merkle_paths = PyObi(
+        """
+        [
+            {
+                is_data_on_right: bool,
+                subtree_height: u8,
+                subtree_size: u64,
+                subtree_version: u64,
+                sibling_hash: bytes
+            }
+        ]
+        """
+    ).decode(iavl_merkle_paths)
+
+    # Goes step-by-step computing hash of parent nodes until reaching root node.
+    for path in len_merkle_paths:
+        current_merkle_hash = iavl_merkle_path.get_parent_hash(
+            path["is_data_on_right"],
+            path["subtree_height"],
+            path["subtree_size"],
+            path["subtree_version"],
+            path["sibling_hash"],
+            current_merkle_hash,
+        )
+
+    # Verifies that the computed Merkle root matches what currently exists.
+    if current_merkle_hash != oracle_state_root:
+        self.revert("INVALID_ORACLE_DATA_PROOF")
+
+    return packet
 ```
