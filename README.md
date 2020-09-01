@@ -885,13 +885,13 @@ H(i+1) is get_parent_hash(C(i), H(i)).
 
 2. Calculate `H(0)`
 
-3. Calculate the `oracle module`**_[g]_** hash by hashing from bottom to the top according to [`merkle tree`](https://en.wikipedia.org/wiki/Merkle_tree) hashing scheme.
+3. Calculate the hash of parent node of H(i) and C(i) hash by hashing from bottom to the top according to [`merkle tree`](https://en.wikipedia.org/wiki/Merkle_tree) hashing scheme.
 
    - For i ∈ {0,1,2,...,n-1},`H(i+1)` = [get_parent_hash](#get_parent_hash)(C(i), H(i))
 
-4. Check that `H(n)` must equal to `oracle module`**_[g]_** that just read from the storage in step 1.
+4. Check that `H(n)` must equal to `oracle module`**_[g]_** hash that just read from the storage in step 1.
 
-   - If `H(n)` != `oracle module`**_[g]_** then `revert`
+   - If `H(n)` != `oracle module`**_[g]_** hash then `revert`
    - Else continue
 
 5. return `request_packet_and_respond_packet`
