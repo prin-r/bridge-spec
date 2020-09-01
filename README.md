@@ -38,6 +38,8 @@
   - [encode_varint_unsigned](#encode_varint_unsigned)
   - [encode_varint_signed](#encode_varint_signed)
   - [get_block_header](#get_block_header)
+  - [recover_signer](#recover_signer)
+  - [get_parent_hash](#get_parent_hash)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -589,5 +591,106 @@ def get_block_header(block_header_merkle_parts: bytes, app_hash: bytes, block_he
             ),
             block_header_merkle_parts[160:192],  # [2Δ]
         ),
+    )
+```
+
+#### get_app_hash
+
+This function receive a struct `multi_store_proof` as an input and then return the `AppHash` by the calculation according to [`merkle tree`](https://en.wikipedia.org/wiki/Merkle_tree) hashing scheme.
+
+```text
+                      ________________[AppHash]_______________
+                      /                                        \
+            _______[ρ9]______                          ________[ρ10]________
+          /                  \                       /                     \
+      __[ρ5]__             __[ρ6]__              __[ρ7]__               __[ρ8]__
+    /         \          /         \           /         \            /         \
+  [ρ1]       [ρ2]     [ρ3]        [ρ4]       [i]        [j]          [k]        [l]
+  /   \      /   \    /    \      /    \
+[a]   [b]  [c]   [d] [e]   [f]  [g]    [h]
+
+# Leafs of AppHash tree
+[a] - acc      [b] - distr   [c] - evidence  [d] - gov
+[e] - main     [f] - mint    [g] - oracle    [h] - params
+[i] - slashing [j] - staking [k] - supply    [l] - upgrade
+```
+
+1. **_[g]_** = [merkle_leaf_hash](#merkle_leaf_hash)(0x066f7261636c6520 + sha256(sha256(`multi_store_proof.oracle_iavl_state_hash`))) // calculate double sha256 of multi_store_proof.oracle_iavl_state_hash and then prepend with oracle prefix (uint8(6) + "oracle" + uint8(32)) and then calculate merkle_leaf_hash
+
+2. **_[ρ4]_** = [merkle_inner_hash](#merkle_inner_hash)(**_[g]_**, `multi_store_proof.params_stores_merkle_hash`**_[h]_**)
+
+3. **_[ρ6]_** = [merkle_inner_hash](#merkle_inner_hash)(`multi_store_proof.main_and_mint_stores_merkle_hash`**_[ρ3]_**, **_[ρ4]_**)
+
+4. **_[ρ9]_** = [merkle_inner_hash](#merkle_inner_hash)(`multi_store_proof.acc_to_gov_stores_merkle_hash`**_[ρ5]_**, **_[ρ6]_**)
+
+5. `AppHash` = [merkle_inner_hash](#merkle_inner_hash)(**_[ρ9]_**, `multi_store_proof.slashing_to_upgrade_stores_merkle_hash`**_[ρ10]_**)
+
+6. return `AppHash`
+
+```python3
+def get_app_hash(multi_store_proof: bytes) -> bytes:
+    acc_to_gov_stores_merkle_hash = multi_store_proof[0:32]  # [ρ5]
+    main_and_mint_stores_merkle_hash = multi_store_proof[32:64]  # [ρ3]
+    oracle_iavl_state_hash = multi_store_proof[64:96]  # [g]
+    params_stores_merkle_hash = multi_store_proof[96:128]  # [h]
+    slashing_to_upgrade_stores_merkle_hash = multi_store_proof[128:160]  # [ρ10]
+    return merkle_inner_hash(  # [AppHash]
+        merkle_inner_hash(  # [ρ9]
+            acc_to_gov_stores_merkle_hash,  # [ρ5]
+            merkle_inner_hash(  # [ρ6]
+                main_and_mint_stores_merkle_hash,  # [ρ3]
+                merkle_inner_hash(
+                    merkle_leaf_hash(  # [ρ4]
+                        # oracle prefix (uint8(6) + "oracle" + uint8(32))
+                        bytes.fromhex("066f7261636c6520")
+                        + sha256.digest(sha256.digest(oracle_iavl_state_hash))
+                    ),  # [6]
+                    params_stores_merkle_hash,  # [ρ7]
+                ),
+            ),
+        ),
+        slashing_to_upgrade_stores_merkle_hash,  # [ρ10]
+    )
+```
+
+#### recover_signer
+
+This fucntion
+
+```python3
+def recover_signer(
+    r: bytes,
+    s: bytes,
+    v: int,
+    signed_data_prefix: bytes,
+    signed_data_suffix: bytes,
+    block_hash: bytes
+) -> bytes:
+    return secp256k1.ecrecover(sha256.digest(signed_data_prefix+block_hash+signed_data_suffix), r, s, v)
+```
+
+#### get_parent_hash
+
+This function receive a struct `iavl_merkle_path` and then return the parent hash
+
+```python3
+def get_parent_hash(
+    is_data_on_right: bool,
+    subtree_height: int,
+    subtree_size: int,
+    subtree_version: int,
+    sibling_hash: bytes,
+    data_subtree_hash: bytes
+) -> bytes:
+    left_subtree = sibling_hash if is_data_on_right else data_subtree_hash
+    right_subtree = data_subtree_hash if is_data_on_right else sibling_hash
+    return sha256.digest(
+        bytes([(subtree_height << 1) & 255]) +
+        utils.encode_varint_signed(subtree_size) +
+        utils.encode_varint_signed(subtree_version) +
+        bytes([32]) +
+        left_subtree +
+        bytes([32]) +
+        right_subtree
     )
 ```
