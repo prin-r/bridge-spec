@@ -405,7 +405,7 @@ def update_validator_powers(self, validators_bytes: bytes):
 
 #### merkle_leaf_hash
 
-This function receive any bytes as an `input` an do these following step.
+This function receive any bytes as an `input` and then does these following step.
 
 1. prepend the `input` with a zero byte.
 2. return sha256 of the result from `1.`.
@@ -431,9 +431,9 @@ def merkle_leaf_hash(input: bytes) -> bytes:
 
 #### merkle_inner_hash
 
-This function receive any bytes as an `input` an do these following step.
+This function takes two values left and right, both values in bytes, and then does these the following steps.
 
-1. prepend the `input` with a zero byte.
+1. append `left` with `right` and then prepend it with a byte 01.
 2. return sha256 of the result from `1.`.
 
 params
@@ -444,9 +444,9 @@ params
 
 return values
 
-| Type                     | Field Name | Description          |
-| ------------------------ | ---------- | -------------------- |
-| `bytes`, fixed size = 32 | result     | sha256(0x00 + input) |
+| Type                     | Field Name | Description                 |
+| ------------------------ | ---------- | --------------------------- |
+| `bytes`, fixed size = 32 | result     | sha256(0x01 + left + right) |
 
 Score
 
