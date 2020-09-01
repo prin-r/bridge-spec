@@ -43,6 +43,7 @@
   - [relay_oracle_state](#relay_oracle_state)
   - [verify_oracle_data](#verify_oracle_data)
   - [relay_and_verify](#relay_and_verify)
+  - [get_latest_response](#get_latest_response)
   - [relay](#relay)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
