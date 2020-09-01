@@ -852,10 +852,13 @@ return values
 ```text
 n is the height of IAVL merkle tree.
 
+H(0) is sha256(bytes([0]) + bytes([2]) + encode_varint_signed(version) + bytes([9]) + b"\xff" + request_id.to_bytes(8,'big') + bytes([32]) + sha256(obi_encode(request_packet_and_respond_packet)))
+
 H(n) is an oracle module root hash from the previous diagram.
-  - H(0) is sha256(bytes([0]) + bytes([2]) + encode_varint_signed(version) + bytes([9]) + b"\xff" + request_id.to_bytes(8,'big') + bytes([32]) + sha256(obi_encode(request_packet_and_respond_packet)))
 
 C(i) is a corresponding node to H(i) where i ∈ {0,1,2,...,n-1}.
+
+H(i+1) is get_parent_hash(C(i), H(i)).
 
                       _______________[H(n)]_______________
                     /                                      \
@@ -882,7 +885,16 @@ C(i) is a corresponding node to H(i) where i ∈ {0,1,2,...,n-1}.
 
 2. Calculate `H(0)`
 
-3. ## Calculate the `oracle module`**_[g]_** hash by hashing from bottom to the top
+3. Calculate the `oracle module`**_[g]_** hash by hashing from bottom to the top according to [`merkle tree`](https://en.wikipedia.org/wiki/Merkle_tree) hashing scheme.
+
+   - For i ∈ {0,1,2,...,n-1},`H(i+1)` = [get_parent_hash](#get_parent_hash)(C(i), H(i))
+
+4. Check that `H(n)` must equal to `oracle module`**_[g]_** that just read from the storage in step 1.
+
+   - If `H(n)` != `oracle module`**_[g]_** then `revert`
+   - Else continue
+
+5. return `request_packet_and_respond_packet`
 
 <strong>Example implementation</strong>
 
