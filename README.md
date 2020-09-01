@@ -37,6 +37,7 @@
   - [merkle_inner_hash](#merkle_inner_hash)
   - [encode_varint_unsigned](#encode_varint_unsigned)
   - [encode_varint_signed](#encode_varint_signed)
+  - [get_block_header](#get_block_header)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -437,7 +438,7 @@ def merkle_leaf_hash(input: bytes) -> bytes:
 
 #### merkle_inner_hash
 
-This function takes two values left and right, both values in bytes, and then does these the following steps.
+This function takes two parameters `left` and `right`, both of them are bytes, and then does these the following steps.
 
 1. append `left` with `right` and then prepend it with a byte 01.
 2. return sha256 of the result from `1.`.
@@ -494,7 +495,7 @@ def encode_varint_unsigned(input: int) -> bytes:
 
 #### encode_varint_signed
 
-This function receive an integer as an `input` and then return an [encode varint signed of the `input`](#https://developers.google.com/protocol-buffers/docs/encoding). We can say it basically return [encode_varint_unsigned(input ⨯ 2)](#encode_varint_unsigned)
+This function receive an integer as an `input` and then return an [`encode varint signed of the input`](#https://developers.google.com/protocol-buffers/docs/encoding). We can say it basically return [encode_varint_unsigned(input ⨯ 2)](#encode_varint_unsigned)
 
 params
 
@@ -516,3 +517,29 @@ Score
 def encode_varint_signed(input: int) -> bytes:
     return encode_varint_unsigned(input * 2)
 ```
+
+#### get_block_header
+
+This function receive 3 parameters which are struct `block_header_merkle_parts`, `app_hash`**_[A]_** and `block_height`**_[2]_**. It will calculate the `BlockHash` according to [`merkle tree`](https://en.wikipedia.org/wiki/Merkle_tree) hashing scheme and then return the `BlockHash`.
+
+```text
+                              __ [BlockHash] __
+                    _________|                 |___________
+                    |                                       |
+                  [3α]                                    [3ß]
+          ________|  |_______                     ________|  |________
+        |                   |                   |                    |
+    _ [2α] _            _ [2ß] _             _ [2Γ] _               [2Δ]
+    |        |          |        |           |        |              |  |
+  [1α]      [1ß]      [1Γ]      [1Δ]       [1ε]      [1ζ]          [C]  [D]
+  |  |      |  |      |  |      |  |       |  |      |  |
+[0]  [1]  [2]  [3]  [4]  [5]  [6]  [7]   [8]  [9]  [A]  [B]
+
+# Leafs of BlockHash tree
+[0] - version               [1] - chain_id            [2] - height        [3] - time
+[4] - last_block_id         [5] - last_commit_hash    [6] - data_hash     [7] - validators_hash
+[8] - next_validators_hash  [9] - consensus_hash      [A] - app_hash      [B] - last_results_hash
+[C] - evidence_hash         [D] - proposer_address
+```
+
+1. `encoded_block_height` = [encode_varint_unsigned(`block_height`)](#encode_varint_unsigned)
