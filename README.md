@@ -347,8 +347,8 @@ Get voting power of a validator on BandChain from the storage `validator_power`.
 
 params
 
-| Type    | Field Name |                                                                                                                                                                                                                                                                                 | Description |
-| ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| Type    | Field Name | Description                                                                                                                                                                                                                                                                     |
+| ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `bytes` | validator  | The public key of a validator or something unique that is derived from public such as hash of public key (in Ethereum block chain, we use type `address`). This can be any type that can be used to represent public key. For example `bytes`, `address`, `uint`, `string`, ... |
 
 return values
@@ -427,4 +427,30 @@ Score
 ```python3
 def merkle_leaf_hash(input: bytes) -> bytes:
     return sha256.digest(bytes([0]) + input)
+```
+
+#### merkle_inner_hash
+
+This function receive any bytes as an `input` an do these following step.
+
+1. prepend the `input` with a zero byte.
+2. return sha256 of the result from `1.`.
+
+params
+
+| Type    | Field Name | Description |
+| ------- | ---------- | ----------- |
+| `bytes` | `input`    | Any bytes   |
+
+return values
+
+| Type                     | Field Name | Description          |
+| ------------------------ | ---------- | -------------------- |
+| `bytes`, fixed size = 32 | result     | sha256(0x00 + input) |
+
+Score
+
+```python3
+def merkle_inner_hash(left: bytes, right: bytes) -> bytes:
+    return sha256.digest(bytes([1]) + left + right)
 ```
