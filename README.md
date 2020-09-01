@@ -929,6 +929,7 @@ def verify_oracle_data(
         """
     ).decode(request_packet_and_respond_packet)
 
+    # H(0)
     current_merkle_hash = sha256(
         # Height of tree (only leaf node) is 0 (signed-varint encode)
         bytes([0])
@@ -959,6 +960,7 @@ def verify_oracle_data(
 
     # Goes step-by-step computing hash of parent nodes until reaching root node.
     for path in len_merkle_paths:
+        # H(i+1) = get_parent_hash(C(i), H(i))
         current_merkle_hash = iavl_merkle_path.get_parent_hash(
             path["is_data_on_right"],
             path["subtree_height"],
@@ -969,6 +971,7 @@ def verify_oracle_data(
         )
 
     # Verifies that the computed Merkle root matches what currently exists.
+    # Compare H(n) and [g]
     if current_merkle_hash != oracle_state_root:
         self.revert("INVALID_ORACLE_DATA_PROOF")
 
