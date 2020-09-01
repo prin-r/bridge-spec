@@ -43,6 +43,7 @@
   - [relay_oracle_state](#relay_oracle_state)
   - [verify_oracle_data](#verify_oracle_data)
   - [relay_and_verify](#relay_and_verify)
+  - [relay](#relay)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -985,6 +986,12 @@ return values
 | ----------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------- |
 | `{{string,u64,bytes,u64,u64},{string,u64,u64,u64,u64,u32,bytes}}` | request_packet_and_respond_packet | A struct or a tuple of `request_packet` and `response_packet` |
 
+1. Decode the `proof` using obi into 7 elements which are `block_height`, `multi_store_proof`, `block_header_merkle_parts`, `signatures`, `request_packet_and_respond_packet`, `version` and `iavl_merkle_paths`.
+
+2. Relay the `oracle module`**_[g]_** to the state by call the function [relay_oracle_state](#relay_oracle_state) with `block_height`, `multi_store_proof`, `block_header_merkle_parts` and `signatures` as parameters.
+
+3. Return the result from calling function [verify_oracle_data](#verify_oracle_data) with `block_height`,`request_packet_and_respond_packet`, `version` and `iavl_merkle_paths` as parameters.
+
 <strong>Example implementation</strong>
 
 ```python3
@@ -993,10 +1000,10 @@ def relay_and_verify(proof: bytes) -> dict:
         """
         {
             block_height: u64,
-            multi_store: bytes,
-            merkle_parts: bytes,
+            multi_store_proof: bytes,
+            block_header_merkle_parts: bytes,
             signatures: bytes,
-            encoded_packet: bytes,
+            request_packet_and_respond_packet: bytes,
             version: u64,
             iavl_merkle_paths: bytes
         }
@@ -1005,15 +1012,144 @@ def relay_and_verify(proof: bytes) -> dict:
 
     relay_oracle_state(
         proof_dict["block_height"],
-        proof_dict["multi_store"],
-        proof_dict["merkle_parts"],
+        proof_dict["multi_store_proof"],
+        proof_dict["block_header_merkle_parts"],
         proof_dict["signatures"],
     )
 
     return verify_oracle_data(
         proof_dict["block_height"],
-        proof_dict["encoded_packet"],
+        proof_dict["request_packet_and_respond_packet"],
         proof_dict["version"],
         proof_dict["iavl_merkle_paths"],
     )
+```
+
+#### get_latest_response
+
+This function recevie the representation of a [request_packet](#request_packet) struct which can struct, tuple, dict, bytes, etc and returns the latest corresponse [response_packet](#response_packet) that was relayed.
+
+params
+
+| Type                         | Field Name     | Description                                                                                                |
+| ---------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------- |
+| `{string,u64,bytes,u64,u64}` | request_packet | The representation of a [request_packet](#request_packet) struct which can struct, tuple, dict, bytes, etc |
+
+return values
+
+| Type                                 | Field Name      | Description                                                                                                  |
+| ------------------------------------ | --------------- | ------------------------------------------------------------------------------------------------------------ |
+| `{string,u64,u64,u64,u64,u32,bytes}` | response_packet | the representation of a [response_packet](#response_packet) struct which can struct, tuple, dict, bytes, etc |
+
+1. Read the latest corresponse [response_packet](#response_packet) to the [request_packet](#request_packet) from the storage [requests_cache](#requests_cache).
+
+   - If there is no [response_packet](#response_packet) then return empty.
+   - Else return the representation of [response_packet](#response_packet) such as struct, dict, tuple, bytes, etc.
+
+<strong>Example implementation</strong>
+
+```python3
+def get_latest_response(self, encoded_request: bytes) -> dict:
+    res = self.requests_cache[encoded_request]
+    if not res:
+        return None
+    return PyObi(
+        """
+        {
+            client_id: string,
+            request_id: u64,
+            ans_count: u64,
+            request_time: u64,
+            resolve_time: u64,
+            resolve_status: u32,
+            result: bytes
+        }
+        """
+    ).decode(res)
+```
+
+#### relay
+
+This function performs oracle state relay and oracle data verification in one go. After that, the results will be recorded to the state by using the OBI encoded of RequestPacket as key.
+
+params
+
+| Type    | Field Name | Description                                                        |
+| ------- | ---------- | ------------------------------------------------------------------ |
+| `bytes` | proof      | The obi encoded data for oracle state relay and data verification. |
+
+return values
+
+```
+no return value
+```
+
+1. Call [relay_and_verify](#relay_and_verify) with `proof` as an input to relay the `oracle module`**_[g]_** hash first and then verify that the [request_packet](#request_packet) and the [response_packet](#response_packet) are really exist on BandChain.
+
+   - If the calling [relay_and_verify](#relay_and_verify) is fail then the transaction will be `revert` otherwise continue
+
+2. Get the current latest [response_packet](#response_packet) by calling [get_latest_response](#get_latest_response)(obi_encode(request_packet)).
+
+3. Check that the `resolve_time` of the new [response_packet](#response_packet) is newer than the current latest [response_packet](#response_packet).
+
+   - If the `resolve_time` of the new [response_packet](#response_packet) is greater than the `resolve_time` of the current [response_packet](#response_packet) then continue.
+   - Else `revert`
+
+4. Check that the `resolve_status` of the new [response_packet](#response_packet) of is 1 (0=Open, 1=Success, 2=Failure, 3=Expired).
+
+   - If `resolve_status` == 1 then continue
+   - Else `revert`
+
+5. Save new [response_packet](#response_packet) into the storage [requests_cache](#requests_cache) by using obi_encode([response_packet](#response_packet)) as a key.
+
+<strong>Example implementation</strong>
+
+```python3
+def relay(proof: bytes) -> None:
+    packet = relay_and_verify(proof)
+    req = packet["req"]
+    res = packet["res"]
+
+    req_key = PyObi(
+        """
+            {
+                client_id: string,
+                oracle_script_id: u64,
+                calldata: bytes,
+                ask_count: u64,
+                min_count: u64
+            }
+        """
+    ).encode(packet["req"])
+
+    prev_res = get_latest_response(req_key)
+    prev_resolve_time = (
+        (
+            prev_res.get("resolve_time", 0)
+            if isinstance(prev_res.get("resolve_time", 0), int)
+            else 0
+        )
+        if isinstance(prev_res, dict)
+        else 0
+    )
+
+    if prev_resolve_time >= res["resolve_time"]:
+        revert("REQUEST_HAS_OUTDATED")
+
+    if res["resolve_status"] != 1:
+        revert("FAIL_REQUEST_IS_NOT_SUCCESSFULLY_RESOLVED")
+
+    requests_cache[req_key] = PyObi(
+        """
+        {
+            client_id: string,
+            request_id: u64,
+            ans_count: u64,
+            request_time: u64,
+            resolve_time: u64,
+            resolve_status: u32,
+            result: bytes
+        }
+        """
+    ).encode(res)
 ```
