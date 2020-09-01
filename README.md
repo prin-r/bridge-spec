@@ -529,8 +529,8 @@ def encode_varint_signed(input: int) -> bytes:
 This function receive 3 parameters which are struct `block_header_merkle_parts`, `app_hash`**_[A]_** and `block_height`**_[2]_**. It will calculate the `BlockHash` according to [`merkle tree`](https://en.wikipedia.org/wiki/Merkle_tree) hashing scheme and then return the `BlockHash`.
 
 ```text
-                              __ [BlockHash] __
-                    _________|                 |___________
+                               __ [BlockHash] __
+                     _________|                 |___________
                     |                                       |
                   [3α]                                    [3ß]
           ________|  |_______                     ________|  |________
