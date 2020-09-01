@@ -530,8 +530,8 @@ This function receive 3 parameters which are struct `block_header_merkle_parts`,
 
 ```text
                                __ [BlockHash] __
-                     _________|                 |___________
-                    |                                       |
+                     _________|                 |__________
+                    |                                      |
                   [3α]                                    [3ß]
           ________|  |_______                     ________|  |________
          |                   |                   |                    |
