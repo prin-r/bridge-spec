@@ -560,6 +560,8 @@ This function receive 3 parameters which are struct `block_header_merkle_parts`,
 
 9. `BlockHash` = [merkle_inner_hash](#merkle_inner_hash)(**_[3α]_**,**_[3ß]_**)
 
+10. return `BlockHash`
+
 <strong>Example implementation</strong>
 
 Score
