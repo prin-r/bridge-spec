@@ -417,7 +417,7 @@ def update_validator_powers(self, validators_bytes: bytes):
 This function receive any bytes as an `input` and then does these following step.
 
 1. prepend the `input` with a zero byte.
-2. return sha256 of the result from `1.`.
+2. return [sha256](#utility-functions) of the result from `1.`.
 
 params
 
@@ -427,9 +427,9 @@ params
 
 return values
 
-| Type                     | Field Name | Description          |
-| ------------------------ | ---------- | -------------------- |
-| `bytes`, fixed size = 32 | result     | sha256(0x00 + input) |
+| Type                     | Field Name | Description                                |
+| ------------------------ | ---------- | ------------------------------------------ |
+| `bytes`, fixed size = 32 | result     | [sha256](#utility-functions)(0x00 + input) |
 
 <strong>Example implementation</strong>
 
@@ -455,9 +455,9 @@ params
 
 return values
 
-| Type                     | Field Name | Description                 |
-| ------------------------ | ---------- | --------------------------- |
-| `bytes`, fixed size = 32 | result     | sha256(0x01 + left + right) |
+| Type                     | Field Name | Description                                       |
+| ------------------------ | ---------- | ------------------------------------------------- |
+| `bytes`, fixed size = 32 | result     | [sha256](#utility-functions)(0x01 + left + right) |
 
 <strong>Example implementation</strong>
 
@@ -643,7 +643,7 @@ return values
 | ---------------------- | ---------- | ------------- |
 | `bytes`, fix size = 32 | result     | The `AppHash` |
 
-1. **_[g]_** = [merkle_leaf_hash](#merkle_leaf_hash)(0x066f7261636c6520 + sha256(sha256(`multi_store_proof.oracle_iavl_state_hash`))) // calculate double sha256 of multi_store_proof.oracle_iavl_state_hash and then prepend with oracle prefix (uint8(6) + "oracle" + uint8(32)) and then calculate merkle_leaf_hash
+1. **_[g]_** = [merkle_leaf_hash](#merkle_leaf_hash)(0x066f7261636c6520 + [sha256](#utility-functions)([sha256](#utility-functions)(`multi_store_proof.oracle_iavl_state_hash`))) // calculate double sha256 of multi_store_proof.oracle_iavl_state_hash and then prepend with oracle prefix (uint8(6) + "oracle" + uint8(32)) and then calculate merkle_leaf_hash
 
 2. **_[ρ4]_** = [merkle_inner_hash](#merkle_inner_hash)(**_[g]_**, `multi_store_proof.params_stores_merkle_hash`**_[h]_**)
 
