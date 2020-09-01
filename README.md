@@ -42,6 +42,7 @@
   - [get_parent_hash](#get_parent_hash)
   - [relay_oracle_state](#relay_oracle_state)
   - [verify_oracle_data](#verify_oracle_data)
+  - [relay_and_verify](#relay_and_verify)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -393,25 +394,25 @@ Score
 # We use an encoded of [{bytes,u64}] in this case because right now Score does not support complex type parameters
 # @param validators_bytes OBI encoded of the changed set of BandChain validators.
 @external
-def update_validator_powers(self, validators_bytes: bytes):
+def update_validator_powers(validators_bytes: bytes):
     # This function can only be call by owner
-    if self.msg.sender != self.owner:
-        self.revert("NOT_AUTHORIZED")
+    if msg.sender != owner:
+        revert("NOT_AUTHORIZED")
 
     obi = PyObi("""[{pubkey:bytes, power:u64}]""")
-    total_validator_power = self.total_validator_power.get()
+    total_validator_power = total_validator_power.get()
     for validator_with_power in obi.decode(validators_bytes):
         pubkey = validator_with_power["pubkey"]
         power = validator_with_power["power"]
         if len(pubkey) != 64:
-            self.revert(f"PUBKEY_SHOULD_BE_64_BYTES_BUT_GOT_{len(pubkey)}_BYTES")
+            revert(f"PUBKEY_SHOULD_BE_64_BYTES_BUT_GOT_{len(pubkey)}_BYTES")
 
-        total_validator_power -= self.validator_powers[pubkey]
+        total_validator_power -= validator_powers[pubkey]
         total_validator_power += power
 
-        self.validator_powers[pubkey] = power
+        validator_powers[pubkey] = power
 
-    self.total_validator_power.set(total_validator_power)
+    total_validator_power.set(total_validator_power)
 ```
 
 #### merkle_leaf_hash
@@ -793,7 +794,6 @@ no return value
 
 ```python3
 def relay_oracle_state(
-    self,
     block_height: int,
     multi_store_proof: bytes,
     block_header_merkle_parts: bytes,
@@ -819,15 +819,15 @@ def relay_oracle_state(
     signers_checking = set()
     for signer in recover_signers:
         if signer in signers_checking:
-            self.revert(f"REPEATED_PUBKEY_FOUND: {signer.hex()}")
+            revert(f"REPEATED_PUBKEY_FOUND: {signer.hex()}")
 
         signers_checking.add(signer)
-        sum_voting_power += self.validator_powers[signer]
+        sum_voting_power += validator_powers[signer]
 
-    if sum_voting_power * 3 <= self.total_validator_power.get() * 2:
-        self.revert("INSUFFICIENT_VALIDATOR_SIGNATURES")
+    if sum_voting_power * 3 <= total_validator_power.get() * 2:
+        revert("INSUFFICIENT_VALIDATOR_SIGNATURES")
 
-    self.oracle_state[block_height] = multi_store_proof[64:96]
+    oracle_state[block_height] = multi_store_proof[64:96]
 ```
 
 #### verify_oracle_data
@@ -900,11 +900,14 @@ H(i+1) is get_parent_hash(C(i), H(i)).
 
 ```python3
 def verify_oracle_data(
-    self, block_height: int, request_packet_and_respond_packet: bytes, version: int, iavl_merkle_paths: bytes
+    block_height: int,
+    request_packet_and_respond_packet: bytes,
+    version: int,
+    iavl_merkle_paths: bytes
 ) -> dict:
-    oracle_state_root = self.oracle_state[block_height]
+    oracle_state_root = oracle_state[block_height]
     if oracle_state_root == None:
-        self.revert("NO_ORACLE_ROOT_STATE_DATA")
+        revert("NO_ORACLE_ROOT_STATE_DATA")
 
     packet = PyObi(
         """
@@ -973,7 +976,56 @@ def verify_oracle_data(
     # Verifies that the computed Merkle root matches what currently exists.
     # Compare H(n) and [g]
     if current_merkle_hash != oracle_state_root:
-        self.revert("INVALID_ORACLE_DATA_PROOF")
+        revert("INVALID_ORACLE_DATA_PROOF")
 
     return packet
+```
+
+#### relay_and_verify
+
+This function performs oracle state relay and oracle data verification in one go. The caller submits the obi encoded proof and receives back the decoded data, ready to be validated and used.
+
+params
+
+| Type    | Field Name | Description                                                        |
+| ------- | ---------- | ------------------------------------------------------------------ |
+| `bytes` | proof      | The obi encoded data for oracle state relay and data verification. |
+
+return values
+
+| Type                                                              | Field Name                        | Description                                                   |
+| ----------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------- |
+| `{{string,u64,bytes,u64,u64},{string,u64,u64,u64,u64,u32,bytes}}` | request_packet_and_respond_packet | A struct or a tuple of `request_packet` and `response_packet` |
+
+<strong>Example implementation</strong>
+
+```python3
+def relay_and_verify(proof: bytes) -> dict:
+    proof_dict = PyObi(
+        """
+        {
+            block_height: u64,
+            multi_store: bytes,
+            merkle_parts: bytes,
+            signatures: bytes,
+            encoded_packet: bytes,
+            version: u64,
+            iavl_merkle_paths: bytes
+        }
+        """
+    ).decode(proof)
+
+    relay_oracle_state(
+        proof_dict["block_height"],
+        proof_dict["multi_store"],
+        proof_dict["merkle_parts"],
+        proof_dict["signatures"],
+    )
+
+    return verify_oracle_data(
+        proof_dict["block_height"],
+        proof_dict["encoded_packet"],
+        proof_dict["version"],
+        proof_dict["iavl_merkle_paths"],
+    )
 ```
