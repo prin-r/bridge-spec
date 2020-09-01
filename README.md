@@ -36,6 +36,7 @@
   - [merkle_leaf_hash](#merkle_leaf_hash)
   - [merkle_inner_hash](#merkle_inner_hash)
   - [encode_varint_unsigned](#encode_varint_unsigned)
+  - [encode_varint_signed](#encode_varint_signed)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
