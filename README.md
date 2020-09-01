@@ -683,7 +683,7 @@ def get_app_hash(multi_store_proof: bytes) -> bytes:
 
 #### recover_signer
 
-This fucntion receive a struct `tm_signature` as an input and return a validator's public key by using [ecrecover](#ecrecover).
+This fucntion receive a struct `tm_signature` as an input and return a validator's public key by using [ecrecover](#utility-functions).
 
 params
 
@@ -832,6 +832,8 @@ return values
 | Type                                                              | Field Name                        | Description                                                   |
 | ----------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------- |
 | `{{string,u64,bytes,u64,u64},{string,u64,u64,u64,u64,u32,bytes}}` | request_packet_and_respond_packet | A struct or a tuple of `request_packet` and `response_packet` |
+
+1. Read the oracle_state from the state of the `Bridge` to check if this status is available or not.
 
 <strong>Example implementation</strong>
 
