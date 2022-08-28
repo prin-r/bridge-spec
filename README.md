@@ -1,4 +1,4 @@
-# Bridge contract
+#Bridge contract
 
 **This document is working in progress**
 
@@ -115,8 +115,8 @@ type CanonicalVote struct {
 }
 ```
 
-As the validators must sign on the [CanonicalVote](https://github.com/tendermint/tendermint/blob/v0.34.x/spec/core/data_structures.md#canonicalvote), most fields and sub-fields are the same for all validators except the `Timestamp`. Each validator can come up with its `Timestamp`, which can be different from others.
-Most of the [CanonicalVote](https://github.com/tendermint/tendermint/blob/v0.34.x/spec/core/data_structures.md#canonicalvote)'s parts can be included directly in the lite-client-proof except the `block hash` or `CanonicalVote.BlockID.Hash`, which need to be calculated on the client chain.
+As the validators must sign on the [CanonicalVote](https://github.com/tendermint/tendermint/blob/v0.34.x/spec/core/data_structures.md#canonicalvote), most fields and sub-fields are the same for all validators except the `Timestamp`. Each validator can come up with their own `Timestamp`, which can be different from others.
+Most of the [CanonicalVote](https://github.com/tendermint/tendermint/blob/v0.34.x/spec/core/data_structures.md#canonicalvote) 's parts can be included directly in the lite-client-proof except the `block hash` (`CanonicalVote.BlockID.Hash`), which need to be calculated on the client chain.
 In the diagram below, the `block hash` will be calculated by hashing the raw data from the bottom of the tree upwards to the root.
 
 ```text
@@ -128,9 +128,9 @@ In the diagram below, the `block hash` will be calculated by hashing the raw dat
                     |                   |                   |                    |
                 _ [2α] _            _ [2ß] _             _ [2Γ] _               [2Δ]
                |        |          |        |           |        |              |  |
-             [1α]      [1ß]      [1Γ]      [1Δ]       [1ε]      [1ζ]          [C]  [D]
+             [1α]      [1ß]      [1Γ]      [1Δ]       [1ε]      [1ζ]          [γ]  [ω]
              |  |      |  |      |  |      |  |       |  |      |  |
-           [0]  [1]  [2]  [3]  [4]  [5]  [6]  [7]   [8]  [9]  [A]  [B]
+           [0]  [1]  [2]  [3]  [4]  [5]  [6]  [7]   [8]  [9]  [α]  [β]
                                                                |
                                                                |
                                                                |
@@ -149,8 +149,8 @@ In the diagram below, the `block hash` will be calculated by hashing the raw dat
 # Leafs of BlockHash tree
 [0] - version               [1] - chain_id            [2] - height        [3] - time
 [4] - last_block_id         [5] - last_commit_hash    [6] - data_hash     [7] - validators_hash
-[8] - next_validators_hash  [9] - consensus_hash      [A] - app_hash      [B] - last_results_hash
-[C] - evidence_hash         [D] - proposer_address
+[8] - next_validators_hash  [9] - consensus_hash      [α] - app_hash      [β] - last_results_hash
+[γ] - evidence_hash         [ω] - proposer_address
 
 # Leafs of AppHash tree
 [0] - auth     [1] - authz    [2] - bank    [3] - capability [4] - crisis  [5] - dist
