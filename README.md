@@ -22,8 +22,7 @@
 - [Bridge contract](#bridge-contract)
   - [Structs](#structs)
     - [validator_with_power](#validator_with_power)
-    - [request_packet](#request_packet)
-    - [response_packet](#response_packet)
+    - [result](#result)
     - [iavl_merkle_path](#iavl_merkle_path)
     - [multi_store_proof](#multi_store_proof)
     - [block_header_merkle_parts](#block_header_merkle_parts)
@@ -291,14 +290,14 @@ Example proof struct
 
 A structure that encapsulates the public key and the amount of voting power on BandChain of a single validator.
 
-| Field Name  | Type                | Description                                                                                                                           |
-| ----------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `validator` | `bytes`, fixed size | validator's public key or something unique that is derived from public key such as hash of public key, compression form of public key |
-| `power`     | `u64`               | validator's voting power on BandChain                                                                                                 |
+| Field Name  | Type      | Description                                                                                                                           |
+| ----------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `validator` | `address` | validator's public key or something unique that is derived from public key such as hash of public key, compression form of public key |
+| `power`     | `u64`     | validator's voting power on BandChain                                                                                                 |
 
-#### request_packet
+#### result
 
-A structure that encapsulates the information about the request.
+A structure that encapsulates the information about a request on Bandchain.
 
 | Field Name         | Type     | Description                                                                                                                                                     |
 | ------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -307,71 +306,84 @@ A structure that encapsulates the information about the request.
 | `params`           | `bytes`  | an obi encode of the request's parameters, for example "000000034254430000000a" (obi encode of ["BTC", 10])                                                     |
 | `ask_count`        | `u64`    | the minimum number of validators necessary for the request to proceed to the execution phase. Therefore the minCount must be less than or equal to the askCount |
 | `min_count`        | `u64`    | the number of validators that are requested to respond to this request                                                                                          |
-
-#### response_packet
-
-A structure that encapsulates the information about the response.
-
-| Field Name       | Type     | Description                                                                                         |
-| ---------------- | -------- | --------------------------------------------------------------------------------------------------- |
-| `client_id`      | `string` | a string that refer to the requester, for example "from_scan", ...                                  |
-| `request_id`     | `u64`    | an integer that refer to a specific request on BandChain                                            |
-| `ans_count`      | `u64`    | a number of answers that was answered by validators                                                 |
-| `request_time`   | `u64`    | unix time at which the request was created on BandChain                                             |
-| `resolve_time`   | `u64`    | unix time at which the request got a number of reports/answers greater than or equal to `min_count` |
-| `resolve_status` | `u32`    | status of the request (0=Open, 1=Success, 2=Failure, 3=Expired)                                     |
-| `result`         | `bytes`  | an obi encode of the request's result, for example "0000aaaa" (obi encode of [ 43690 ])             |
+| `request_id`       | `u64`    | an integer that refer to a specific request on BandChain                                            |
+| `ans_count`        | `u64`    | a number of answers that was answered by validators                                                 |
+| `request_time`     | `u64`    | unix time at which the request was created on BandChain                                             |
+| `resolve_time`     | `u64`    | unix time at which the request got a number of reports/answers greater than or equal to `min_count` |
+| `resolve_status`   | `u32`    | status of the request (0=Open, 1=Success, 2=Failure, 3=Expired)                                     |
+| `result`           | `bytes`  | an obi encode of the request's result, for example "0000aaaa" (obi encode of [ 43690 ])             |
 
 #### iavl_merkle_path
 
 A structure of merkle proof that shows how the data leaf is part of the `oracle module`<strong><em>[B]</em></strong> tree. The proof’s content is the list of “iavl_merkle_path” from the leaf to the root of the tree.
 
-| Field Name         | Type                     | Description                                                    |
-| ------------------ | ------------------------ | -------------------------------------------------------------- |
-| `is_data_on_right` | `bool`                   | whether the data is on the right subtree of this internal node |
-| `subtree_height`   | `u8`                     | the height of this subtree                                     |
-| `subtree_size`     | `u64`                    | the size of this subtree                                       |
-| `subtree_version`  | `u64`                    | the latest block height that this subtree has been updated     |
-| `sibling_hash`     | `bytes`, fixed size = 32 | hash of the other child subtree                                |
+| Field Name         | Type      | Description                                                    |
+| ------------------ | --------- | -------------------------------------------------------------- |
+| `is_data_on_right` | `bool`    | whether the data is on the right subtree of this internal node |
+| `subtree_height`   | `u8`      | the height of this subtree                                     |
+| `subtree_size`     | `u64`     | the size of this subtree                                       |
+| `subtree_version`  | `u64`     | the latest block height that this subtree has been updated     |
+| `sibling_hash`     | `bytes32` | hash of the other child subtree                                |
 
 #### multi_store_proof
 
-A structure that encapsulates sibling module hashes of the `app_hash`<strong><em>[A]</em></strong> which are `params module`<strong><em>[h]</em></strong>, `main,mint modules`<strong><em>[ρ3]</em></strong>, `acc,distr,evidence,gov modules`<strong><em>[ρ5]</em></strong>, `slashing,staking,supply,upgrade modules`<strong><em>[ρ10]</em></strong>.
+A structure that encapsulates sibling module hashes of the 
+`app_hash`<strong><em>[α]</em></strong> which are 
+**_[B]_**, **_[A]_**, **_[I4]_**, **_[I11]_**, **_[I12]_**, **_[G]_**
 
-| Field Name                               | Type                     | Description                                                                            |
-| ---------------------------------------- | ------------------------ | -------------------------------------------------------------------------------------- |
-| `acc_to_gov_stores_merkle_hash`          | `bytes`, fixed size = 32 | root hash of acc,distr,evidence,gov modules (<strong><em>[ρ5]</em></strong>)           |
-| `main_and_mint_stores_merkle_hash`       | `bytes`, fixed size = 32 | root hash of main and mint modules (<strong><em>[ρ3]</em></strong>)                    |
-| `oracle_iavl_state_hash`                 | `bytes`, fixed size = 32 | root hash of oracle module (<strong><em>[B]</em></strong>)                             |
-| `params_stores_merkle_hash`              | `bytes`, fixed size = 32 | root hash of params module (<strong><em>[h]</em></strong>)                             |
-| `slashing_to_upgrade_stores_merkle_hash` | `bytes`, fixed size = 32 | root hash of slashing,staking,supply,upgrade modules (<strong><em>[ρ10]</em></strong>) |
+| Field Name                              | Type      | Description                                                                            |
+| --------------------------------------- | --------- | -------------------------------------------------------------------------------------- |
+| `auth_to_fee_grant_stores_merkle_hash`  | `bytes32` | root hash of acc,distr,evidence,gov modules (<strong><em>[ρ5]</em></strong>)           |
+| `gov_to_ibc_core_stores_merkle_hash`    | `bytes32` | root hash of main and mint modules (<strong><em>[ρ3]</em></strong>)                    |
+| `mint_store_merkle_hash`                | `bytes32` | root hash of params module (<strong><em>[h]</em></strong>)                             |
+| `oracle_iavl_state_hash`                | `bytes32` | root hash of oracle module (<strong><em>[B]</em></strong>)                             |
+| `params_to_transfer_stores_merkle_hash` | `bytes32` | root hash of slashing,staking,supply,upgrade modules (<strong><em>[ρ10]</em></strong>) |
+| `upgrade_store_merkle_hash`             | `bytes32` | root hash of slashing,staking,supply,upgrade modules (<strong><em>[ρ10]</em></strong>) |
 
 #### block_header_merkle_parts
 
 A structure that encapsulates the components of a block header that correspond to height<strong><em>[2]</em></strong> and app hash <strong><em>[A]</em></strong>.
 
-| Field Name                               | Type                     | Description                                                                                               |
-| ---------------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------- |
-| `version_and_chain_id_hash`              | `bytes`, fixed size = 32 | root hash of version and chain id components (<strong><em>[1α]</em></strong>)                             |
-| `time_hash`                              | `bytes`, fixed size = 32 | hash of time component (<strong><em>[3]</em></strong>)                                                    |
-| `last_block_id_and_other`                | `bytes`, fixed size = 32 | root hash of last block id, last commit hash, data hash, validators hash (<strong><em>[2ß]</em></strong>) |
-| `next_validator_hash_and_consensus_hash` | `bytes`, fixed size = 32 | root hash of version and chain id components (<strong><em>[1ε]</em></strong>)                             |
-| `last_results_hash`                      | `bytes`, fixed size = 32 | hash of last results component (<strong><em>[B]</em></strong>)                                            |
-| `evidence_and_proposer_hash`             | `bytes`, fixed size = 32 | hash of evidence and proposer components (<strong><em>[2Δ]</em></strong>)                                 |
+| Field Name                               | Type      | Description                                                                                               |
+| ---------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------- |
+| `version_and_chain_id_hash`              | `bytes32` | root hash of version and chain id components (<strong><em>[1α]</em></strong>)                             |
+| `time_hash`                              | `bytes32` | hash of time component (<strong><em>[3]</em></strong>)                                                    |
+| `last_block_id_and_other`                | `bytes32` | root hash of last block id, last commit hash, data hash, validators hash (<strong><em>[2ß]</em></strong>) |
+| `next_validator_hash_and_consensus_hash` | `bytes32` | root hash of version and chain id components (<strong><em>[1ε]</em></strong>)                             |
+| `last_results_hash`                      | `bytes32` | hash of last results component (<strong><em>[B]</em></strong>)                                            |
+| `evidence_and_proposer_hash`             | `bytes32` | hash of evidence and proposer components (<strong><em>[2Δ]</em></strong>)                                 |
 
 #### tm_signature
 
-A structure that encapsulates Tendermint's precommit data and validator's signature for performing signer recovery for ECDSA secp256k1 signature. Tendermint's precommit data compose of block hash and some additional information prepended and appended to the block
-hash. The prepended part (prefix) and the appended part (suffix) are different for each signer
-(including signature size, machine clock, validator index, etc).
+A structure that encapsulates Tendermint's CanonicalVote
+ data and validator's signature for performing signer recovery for ECDSA secp256k1 signature. Tendermint's CanonicalVote data is composed of a block hash and some additional information prepended and appended to the block hash. Most parts of the sign data are the same for all validators except the timestamp. So, most parts are moved out to a single common struct, and the encoded timestamp stays with the signature. 
+
+| Field Name           | Type      | Description                                                      |
+| -------------------- | --------- | ---------------------------------------------------------------- |
+| `r`                  | `bytes32 `| a part of signature                                              |
+| `s`                  | `bytes32` | a part of signature                                              |
+| `v`                  | `u8`      | a value that helps reduce the calculation of public key recovery |
+| `encoded_timestamp`  | `bytes`   | a protobuf encoded timestamp of each validator                   |
+
+#### block_detail
+
+The `oracle module`<strong><em>[B]</em></strong> state which will be saved on-chain along with the time_second and time_nano_second_fraction of the block.
+
+| Field Name                   | Type      | Description                                                      |
+| ---------------------------- | --------- | ---------------------------------------------------------------- |
+| `oracle_state`               | `bytes32` | a part of signature                                              |
+| `time_second`                | `uint64`  | a part of signature                                              |
+| `time_nano_second_fraction`  | `u8`      | a value that helps reduce the calculation of public key recovery |
+
+#### common_encoded_vote_part
+
+Tendermint's CanonicalVote data compose of block hash and some additional information prepended and appended to the block
+hash. The prepended part (prefix) and the appended part (suffix) are different for each signer.
 
 | Field Name           | Type                     | Description                                                      |
 | -------------------- | ------------------------ | ---------------------------------------------------------------- |
-| `r`                  | `bytes`, fixed size = 32 | a part of signature                                              |
-| `s`                  | `bytes`, fixed size = 32 | a part of signature                                              |
-| `v`                  | `u8`                     | a value that helps reduce the calculation of public key recovery |
 | `signed_data_prefix` | `bytes`                  | The prepended part of Tendermint's precommit data                |
-| `signed_data_suffix` | `bytes`                  | The appended part of Tendermint's precommit data                 |
+| `signed_data_suffix` | `bytes`                  | The appended part of Tendermint's precommit data                 |               | a protobuf encoded timestamp of each validator                   |
 
 ## Bridge's storages
 
