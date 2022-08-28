@@ -120,30 +120,30 @@ Most of the [CanonicalVote](https://github.com/tendermint/tendermint/blob/v0.34.
 In the diagram below, the `block hash` will be calculated by hashing the raw data from the bottom of the tree upwards to the root.
 
 ```text
-                                           __ [BlockHash] __
-                                 _________|                 |___________
-                                |                                       |
-                              [3α]                                    [3ß]
-                      ________|  |_______                     ________|  |________
-                     |                   |                   |                    |
-                 _ [2α] _            _ [2ß] _             _ [2Γ] _               [2Δ]
-                |        |          |        |           |        |              |  |
-              [1α]      [1ß]      [1Γ]      [1Δ]       [1ε]      [1ζ]          [γ]  [ω]
-              |  |      |  |      |  |      |  |       |  |      |  |
-            [0]  [1]  [2]  [3]  [4]  [5]  [6]  [7]   [8]  [9]  [α]  [β]
-                                                                |
-                                                                |
-                                                                |
-                                            ________________[AppHash]_________________
-                                           /                                          \
-                       _________________[I14]_________________                        [G]
-                      /                                        \
-           _______[I12]______                          _______[I13]________
-          /                  \                        /                    \
-     __[I8]__             __[I9]__                __[I10]__              __[I11]__
-    /         \          /         \            /          \            /         \
-  [I0]       [I1]     [I2]        [I3]        [I4]        [I5]        [I6]       [I7]
- /   \      /   \    /    \      /    \      /    \      /    \      /    \     /    \
+                                            __ [BlockHash] __
+                                  _________|                 |___________
+                                 |                                       |
+                               [3α]                                    [3ß]
+                       ________|  |_______                     ________|  |________
+                      |                   |                   |                    |
+                  _ [2α] _            _ [2ß] _             _ [2Γ] _               [2Δ]
+                 |        |          |        |           |        |              |  |
+               [1α]      [1ß]      [1Γ]      [1Δ]       [1ε]      [1ζ]          [γ]  [ω]
+               |  |      |  |      |  |      |  |       |  |      |  |
+             [0]  [1]  [2]  [3]  [4]  [5]  [6]  [7]   [8]  [9]  [α]  [β]
+                                                                 |
+                                                                 |
+                                                                 |
+                                             ________________[AppHash]_________________
+                                            /                                          \
+                        _________________[I14]_________________                        [G]
+                       /                                        \
+            _______[I12]______                          _______[I13]________
+           /                  \                        /                    \
+      __[I8]__             __[I9]__                __[I10]__              __[I11]__
+     /         \          /         \            /          \            /         \
+   [I0]       [I1]     [I2]        [I3]        [I4]        [I5]        [I6]       [I7]
+  /   \      /   \    /    \      /    \      /    \      /    \      /    \     /    \
 [0]   [1]  [2]   [3] [4]   [5]  [6]    [7]  [8]    [9]  [A]    [B]  [C]    [D]  [E]   [F]
 
 # Leafs of BlockHash tree
@@ -157,7 +157,6 @@ In the diagram below, the `block hash` will be calculated by hashing the raw dat
 [6] - evidence [7] - feegrant [8] - gov     [9] - ibccore    [A] - mint    [B] - oracle
 [C] - params   [D] - slashing [E] - staking [F] - transfer   [G] - upgrade
 ```
-
 
 As described above, the entire process can be divided into two parts.
 1. **relay_block**: Verify that an `oracle module`<strong><em>[B]</em></strong> root hash module really exist on BandChain at a specific block and then save that root hash into **Bridge**'s state. This process requires the signatures of several validators signed on the block hash in which everyone who signs must have a total voting power greater than or equal to two-thirds of the entire voting power. The block hash is made up of multiple values that come from the BandChain state, where `oracle module`<strong><em>[B]</em></strong> root hash is one of them.
