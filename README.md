@@ -163,8 +163,9 @@ As described above, the entire process can be divided into two parts.
 2. **verify_oracle_data**: Verify a specific value that store under `oracle module`<strong><em>[B]</em></strong> is really existed by hashing the corresponding node's from bottom to top.
 
   - **n** is the height of IAVL merkle tree
+  - **value** is bytes, which is the encoded of the actual data stored under the `oracle module`<strong><em>[B]</em></strong>.
   - **H(n)** is an `oracle module`<strong><em>[B]</em></strong> root hash from the previous diagram.
-    - **H(0)** is basically derived from **value**
+    - **H(0)** is derived from the **value**
   - **C(i)** is a corresponding node to H(i) where **i ∈ {0,1,2,...,n-1}** .
 
   ```text
@@ -191,7 +192,7 @@ As described above, the entire process can be divided into two parts.
 ### Getting_the_proof_from_Band
 
 Usually the client can use the Tendermint RPC call to ask for the information they need to construct the proof.
-However, we have implemented an endpoint to make this process easier. Our proof endpoint on the mainnet is `https://laozi4.bandchain.org/api/oracle/proof` + `/A_SPECIFIC_REQUEST_ID`.
+However, we have implemented an endpoint to make this process easier. Our proof endpoint on the mainnet is `https://laozi4.bandchain.org/api/oracle/proof` + `/<A_SPECIFIC_REQUEST_ID>`.
 
 Please see this example [proof of the request number 11124603](https://laozi4.bandchain.org/api/oracle/proof/11124603).
 
